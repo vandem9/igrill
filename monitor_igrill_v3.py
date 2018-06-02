@@ -2,7 +2,7 @@ import json
 import time
 import paho.mqtt.client as mqtt
 
-from igrill import IGrillV2Peripheral
+from igrill import IGrillV3Peripheral
 
 ADDRESS = 'D4:81:CA:23:67:A1'
 mqtt_server = "mqtt"
