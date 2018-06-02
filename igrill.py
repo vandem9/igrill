@@ -142,3 +142,36 @@ class IGrillV2Peripheral(IDevicePeripheral):
 
     def read_battery(self):
         return float(ord(self.battery_char.read()[0]))
+
+
+class IGrillV3Peripheral(IDevicePeripheral):
+    """
+    Specialization of iDevice peripheral for the iGrill v3
+    """
+
+    # encryption key for the iGrill v3
+    encryption_key = [39, 98, -4, 94, -54, 19, 69, -27, -99, 17, -34, 74, -10, -13, -116, 28]
+
+    def __init__(self, address):
+        IDevicePeripheral.__init__(self, address)
+
+        # find characteristics for battery and temperature
+        self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)
+        self.temp_chars = {}
+
+        for probe_num in range(1,5):
+            temp_char_name = 'PROBE{}_TEMPERATURE'.format(probe_num)
+            temp_char = self.characteristic(getattr(UUIDS, temp_char_name))
+            self.temp_chars[probe_num] = temp_char
+
+    def read_temperature(self):
+        temps = {}
+        for probe_num, temp_char in self.temp_chars.items():
+            temp = ord(temp_char.read()[1]) * 256
+            temp += ord(temp_char.read()[0])
+            temps[probe_num] = float(temp)
+
+        return temps
+
+    def read_battery(self):
+        return float(ord(self.battery_char.read()[0]))
