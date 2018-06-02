@@ -19,19 +19,19 @@ if __name__ == '__main__':
  while True:
   temperature=periph.read_temperature()
   # Probe 1
-  if temperature[1] != 63536.0:
+  if temperature[1]:
    client.publish("bbq/probe1", temperature[1])
 
   # Probe 2
-  if temperature[2] != 63536.0:
+  if temperature[2]:
    client.publish("bbq/probe2", temperature[2])
 
   # Probe 3
-  if temperature[3] != 63536.0:
+  if temperature[3]:
    client.publish("bbq/probe3", temperature[3])
 
   # Probe 4
-  if temperature[4] != 63536.0:
+  if temperature[4]:
    client.publish("bbq/probe4", temperature[4])
 
   client.publish("bbq/battery", periph.read_battery())
