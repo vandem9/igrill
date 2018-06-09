@@ -1,8 +1,8 @@
 import bluepy.btle as btle
 import random
-from utils import to_celcius
 
 from crypto import encrypt, decrypt
+
 
 class UUIDS:
     FIRMWARE_VERSION   = btle.UUID("64ac0001-4a4b-4b58-9f37-94d3c52ffdf7")
@@ -27,11 +27,13 @@ class UUIDS:
 class IDevicePeripheral(btle.Peripheral):
     encryption_key = None
 
-    def __init__(self, address):
+    def __init__(self, address, name):
         """
         Connects to the device given by address performing necessary authentication
         """
         btle.Peripheral.__init__(self, address)
+
+        self.name = name
 
         # iDevice devices require bonding. I don't think this will give us bonding
         # if no bonding exists, so please use bluetoothctl to create a bond first
@@ -95,14 +97,8 @@ class IGrillMiniPeripheral(IDevicePeripheral):
     # encryption key for the iGrill Mini
     encryption_key = [-19, 94, 48, -114, -117, -52, -111, 19, 48, 108, -44, 104, 84, 21, 62, -35]
 
-    # Scale to report temperature in
-    scale = None
-
-    def __init__(self, address, scale = 'fahrenheit'):
-        IDevicePeripheral.__init__(self, address)
-
-        # Set scale for temperature readings
-        self.scale = scale
+    def __init__(self, address, name="igrill_mini"):
+        IDevicePeripheral.__init__(self, address, name)
 
         # find characteristics for battery and temperature
         self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)
@@ -112,14 +108,7 @@ class IGrillMiniPeripheral(IDevicePeripheral):
         temp = ord(self.temp_char.read()[1]) * 256
         temp += ord(self.temp_char.read()[0])
 
-        float_temp = float(temp)
-        if float_temp == 63536.0:
-            float_temp = False
-
-        if self.scale == 'celsius':
-            return { 1: to_celcius(float_temp), 2: 0.0, 3: 0.0, 4: 0.0 }
-        else:
-            return { 1: float_temp, 2: 0.0, 3: 0.0, 4: 0.0 }
+        return {1: float(temp) if float(temp) != 63536.0 else False, 2: False, 3: False, 4: False}
 
     def read_battery(self):
         return float(ord(self.battery_char.read()[0]))
@@ -133,20 +122,14 @@ class IGrillV2Peripheral(IDevicePeripheral):
     # encryption key for the iGrill v2
     encryption_key = [-33, 51, -32, -119, -12, 72, 78, 115, -110, -44, -49, -71, 70, -25, -123, -74]
 
-    # Scale to report temperature in
-    scale = None
-
-    def __init__(self, address, scale = 'fahrenheit'):
-        IDevicePeripheral.__init__(self, address)
-
-        # Set scale for temperature readings
-        self.scale = scale
+    def __init__(self, address, name="igrill_v2"):
+        IDevicePeripheral.__init__(self, address, name)
 
         # find characteristics for battery and temperature
         self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)
         self.temp_chars = {}
 
-        for probe_num in range(1,5):
+        for probe_num in range(1, 5):
             temp_char_name = 'PROBE{}_TEMPERATURE'.format(probe_num)
             temp_char = self.characteristic(getattr(UUIDS, temp_char_name))
             self.temp_chars[probe_num] = temp_char
@@ -157,14 +140,7 @@ class IGrillV2Peripheral(IDevicePeripheral):
             temp = ord(temp_char.read()[1]) * 256
             temp += ord(temp_char.read()[0])
 
-            float_temp = float(temp)
-            if float_temp == 63536.0:
-                float_temp = False
-
-            if self.scale == 'celsius':
-                temps[probe_num] = to_celcius(float_temp)
-            else:
-                temps[probe_num] = float_temp
+            temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
 
         return temps
 
@@ -180,19 +156,13 @@ class IGrillV3Peripheral(IDevicePeripheral):
     # encryption key for the iGrill v3
     encryption_key = [39, 98, -4, 94, -54, 19, 69, -27, -99, 17, -34, 74, -10, -13, -116, 28]
 
-    # Scale to report temperature in
-    scale = None
-
-    def __init__(self, address, scale = 'fahrenheit'):
-        IDevicePeripheral.__init__(self, address)
+    def __init__(self, address, name="igrill_v3"):
+        IDevicePeripheral.__init__(self, address, name)
         # find characteristics for battery and temperature
         self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)
         self.temp_chars = {}
 
-        # Set scale for temperature readings
-        self.scale = scale
-
-        for probe_num in range(1,5):
+        for probe_num in range(1, 5):
             temp_char_name = 'PROBE{}_TEMPERATURE'.format(probe_num)
             temp_char = self.characteristic(getattr(UUIDS, temp_char_name))
             self.temp_chars[probe_num] = temp_char
@@ -203,14 +173,7 @@ class IGrillV3Peripheral(IDevicePeripheral):
             temp = ord(temp_char.read()[1]) * 256
             temp += ord(temp_char.read()[0])
 
-            float_temp = float(temp)
-            if float_temp == 63536.0:
-                float_temp = False
-
-            if self.scale == 'celsius':
-                temps[probe_num] = to_celcius(float_temp)
-            else:    
-                temps[probe_num] = float_temp
+            temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
 
         return temps
 

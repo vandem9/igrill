@@ -1,0 +1,4 @@
+devices:
+  - name:     'grill'               # This will be part of the mqtt topic: '<mqtt_base_topic>/<device.name>/probe{1..4}'
+    type:     'igrill_v3'           # Supported devices: igrill_mini, igrill_v2, igrill_v3
+    address:  'YY:XX:ZZ:00:00:00'   # The MAC of the device
