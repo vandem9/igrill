@@ -3,4 +3,4 @@ devices:
     type:       'igrill_v3'              # Supported devices: igrill_mini, igrill_v2, igrill_v3
     address:    'YY:XX:ZZ:00:00:00'      # The MAC of the device
     topic:      'temperature/outside'    # The topic to publish on. will have name and probe number appended: <topic>/<name>/probe{1..4}
-    intrerval:  20                       # Polling interval
+    interval:  20                       # Polling interval
