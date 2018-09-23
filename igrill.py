@@ -39,7 +39,6 @@ class IDevicePeripheral(btle.Peripheral):
         Connects to the device given by address performing necessary authentication
         """
         logging.debug("Trying to connect to the device with address {}".format(address))
-        btle_lock.acquire()
         btle.Peripheral.__init__(self, address)
         btle_lock.release()
         logging.debug("Connected")
@@ -213,14 +212,21 @@ class DeviceThread(threading.Thread):
         while True:
             try:
                 logging.info("Device thread {} (re)started, trying to connect to iGrill with address: {}".format(self.name, self.address))
-                device = self.device_types[self.type](self.address, self.name)
-                while True:
-                    temperature = device.read_temperature()
-                    battery = device.read_battery()
-                    utils.publish(temperature, battery, self.mqtt_client, self.topic, device.name)
-                    logging.debug("Published temperature: {} and battery: {} to mqtt topic {}".format(temperature, battery, self.topic))
-                    logging.debug("Sleeping for {} seconds".format(self.interval))
-                    time.sleep(self.interval)
+                device = None
+                btle_lock.acquire()
+                try:
+                    device = self.device_types[self.type](self.address, self.name)
+                except:
+                    pass
+                btle_lock.release()
+                if device:
+                    while True:
+                        temperature = device.read_temperature()
+                        battery = device.read_battery()
+                        utils.publish(temperature, battery, self.mqtt_client, self.topic, device.name)
+                        logging.debug("Published temperature: {} and battery: {} to mqtt topic {}".format(temperature, battery, self.topic))
+                        logging.debug("Sleeping for {} seconds".format(self.interval))
+                        time.sleep(self.interval)
             except Exception as e:
                 logging.debug(e)
                 logging.debug("Sleeping for {} seconds before retrying".format(self.interval))
