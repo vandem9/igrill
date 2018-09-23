@@ -213,7 +213,7 @@ class DeviceThread(threading.Thread):
                     logging.debug("Published temperature: {} and battery: {} to mqtt topic {}".format(temperature, battery, self.topic))
                     logging.debug("Sleeping for {} seconds".format(self.interval))
                     time.sleep(self.interval)
-            except Exception:
-                logging.exception("Error while trying to communicate")
+            except Exception as e:
+                logging.debug(e)
                 logging.debug("Sleeping for {} seconds before retrying".format(self.interval))
                 time.sleep(self.interval)
