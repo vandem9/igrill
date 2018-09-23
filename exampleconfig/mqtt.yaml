@@ -2,7 +2,6 @@
 #mqtt:
 #  host:       'mqtt.example.com'                   # Optional default 'localhost'
 #  port:       1883                                 # Optional default '1883'
-#  base_topic: 'bbq'                                # Optional default 'bbq'
 #  keepalive:  60                                   # Optional default '60'
 #  auth:                                            # Optional If included, username_pw_set() is called with user/password
 #    username: 'user'                               # Required (when auth is present)

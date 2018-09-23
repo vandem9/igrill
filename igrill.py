@@ -1,7 +1,11 @@
+import threading
+import time
+
 import bluepy.btle as btle
 import random
 
 from crypto import encrypt, decrypt
+from utils import publish
 
 
 class UUIDS:
@@ -179,3 +183,28 @@ class IGrillV3Peripheral(IDevicePeripheral):
 
     def read_battery(self):
         return float(ord(self.battery_char.read()[0]))
+
+
+class DeviceThread (threading.Thread):
+        device_types = {'igrill_mini': IGrillMiniPeripheral,
+                        'igrill_v2': IGrillV2Peripheral,
+                        'igrill_v3': IGrillV3Peripheral}
+
+    def __init__(self, threadID, name, address, type, mqtt_client, topic, interval):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.address = address
+        self.type = type
+        self.mqtt_client = mqtt_client
+        self.topic = topic
+        self.interval = interval
+
+
+
+    def run(self):
+        device = self.device_types[type](self.address, self.name)
+
+        while True:
+            publish(device.read_temperature(), device.read_battery(), self.mqtt_client, self.topic, device.name)
+            time.sleep(self.interval)

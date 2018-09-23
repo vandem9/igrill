@@ -3,7 +3,7 @@
 import argparse
 import time
 
-from utils import read_config, get_devices, log_setup, mqtt_init, publish
+from utils import read_config, log_setup, mqtt_init, get_device_threads
 
 
 def main():
@@ -21,20 +21,21 @@ def main():
     # Setup logging
     log_setup(options.log_level, options.log_destination)
 
-    # Get device list
-    devices = get_devices(config['devices'])
-
     # Connect to MQTT
     client = mqtt_init(config['mqtt'])
-    base_topic = config['mqtt']['base_topic']
 
-    polling_interval = config['interval'] if 'interval' in config else 15
+    # Get device threads
+    devices = get_device_threads(config['devices'], client)
+
+    for device in devices:
+        device.start()
 
     while True:
         for device in devices:
-            publish(device.read_temperature(), device.read_battery(), client, base_topic, device.name)
+            if not device.is_alive():
+                device.start()
 
-        time.sleep(polling_interval)
+        time.sleep(15)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-from igrill import IGrillMiniPeripheral, IGrillV2Peripheral, IGrillV3Peripheral
+from igrill import IGrillMiniPeripheral, IGrillV2Peripheral, IGrillV3Peripheral, DeviceThread
 import logging
 import os
 import paho.mqtt.client as mqtt
@@ -71,8 +71,12 @@ def get_devices(device_config):
     return [device_types[d['type']](**strip_config(d, ['address', 'name'])) for d in device_config]
 
 
-def to_celcius(fahrenheit):
-    return (fahrenheit - 32) * 5.0 / 9.0
+def get_device_threads(device_config, mqtt_client):
+    if device_config is None:
+        logging.warn("No devices in config")
+        return {}
+
+    return [DeviceThread(ind, d['name'], d['address'], d['type'], mqtt_client, d['topic'], d['interval']) for ind, d in enumerate(device_config)]
 
 
 def read_config(config_path):
@@ -82,11 +86,8 @@ def read_config(config_path):
 
     defaultconfig = {
         "mqtt": {
-            "host":         "localhost",
-            "base_topic":   "bbq"
-        },
-        "scale":    "fahrenheit",
-        "interval": 15
+            "host":         "localhost"
+        }
     }
 
     try:
