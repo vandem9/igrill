@@ -9,8 +9,6 @@ from crypto import encrypt, decrypt
 import threading
 import utils
 
-btle_lock = threading.Lock()
-
 class UUIDS:
     FIRMWARE_VERSION   = btle.UUID("64ac0001-4a4b-4b58-9f37-94d3c52ffdf7")
 
@@ -33,14 +31,15 @@ class UUIDS:
 
 class IDevicePeripheral(btle.Peripheral):
     encryption_key = None
+    btle_lock = threading.Lock()
 
     def __init__(self, address, name):
         """
         Connects to the device given by address performing necessary authentication
         """
         logging.debug("Trying to connect to the device with address {}".format(address))
-        with btle_lock:
-            logging.debug("Calling btle.Peripheral.__init__ with lock: {}".format(id(btle_lock)))
+        with self.btle_lock:
+            logging.debug("Calling btle.Peripheral.__init__ with lock: {}".format(id(self.btle_lock)))
             btle.Peripheral.__init__(self, address)
         logging.debug("Connected")
         self.name = name
