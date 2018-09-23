@@ -6,8 +6,10 @@ import bluepy.btle as btle
 import random
 
 from crypto import encrypt, decrypt
+import threading
 import utils
 
+btle_lock = threading.RLock()
 
 class UUIDS:
     FIRMWARE_VERSION   = btle.UUID("64ac0001-4a4b-4b58-9f37-94d3c52ffdf7")
@@ -37,8 +39,10 @@ class IDevicePeripheral(btle.Peripheral):
         Connects to the device given by address performing necessary authentication
         """
         logging.debug("Trying to connect to the device with address {}".format(address))
+        btle_lock.acquire()
         btle.Peripheral.__init__(self, address)
-
+        btle_lock.release()
+        logging.debug("Connected")
         self.name = name
 
         # iDevice devices require bonding. I don't think this will give us bonding
