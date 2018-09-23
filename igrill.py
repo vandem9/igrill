@@ -211,7 +211,7 @@ class DeviceThread(threading.Thread):
     def run(self):
         while self.run_event.is_set():
             try:
-                logging.info("Device thread {} (re)started, trying to connect to iGrill with address: {}".format(self.name, self.address))
+                logging.debug("Device thread {} (re)started, trying to connect to iGrill with address: {}".format(self.name, self.address))
                 device = self.device_types[self.type](self.address, self.name)
                 self.mqtt_client.reconnect()
                 while True:
