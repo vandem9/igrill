@@ -6,7 +6,6 @@ import bluepy.btle as btle
 import random
 
 from crypto import encrypt, decrypt
-import threading
 import utils
 
 class UUIDS:
@@ -41,7 +40,7 @@ class IDevicePeripheral(btle.Peripheral):
         with self.btle_lock:
             logging.debug("Calling btle.Peripheral.__init__ with lock: {}".format(id(self.btle_lock)))
             btle.Peripheral.__init__(self, address)
-        logging.debug("Connected")
+            logging.debug("Releasing lock: {}".format(id(self.btle_lock)))
         self.name = name
 
         # iDevice devices require bonding. I don't think this will give us bonding
