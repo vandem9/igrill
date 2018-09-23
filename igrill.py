@@ -75,9 +75,9 @@ class IDevicePeripheral(btle.Peripheral):
 
         # read device challenge
         encrypted_device_challenge = self.characteristic(UUIDS.DEVICE_CHALLENGE).read()
-        logging.debug("encrypted device challenge:", str(encrypted_device_challenge).encode("hex"))
+        logging.debug("encrypted device challenge: {}".format(str(encrypted_device_challenge).encode("hex")))
         device_challenge = decrypt(key, encrypted_device_challenge)
-        logging.debug("decrypted device challenge:", str(device_challenge).encode("hex"))
+        logging.debug("decrypted device challenge: {}".format(str(device_challenge).encode("hex")))
 
         # verify device challenge
         if device_challenge[:8] != challenge[:8]:
@@ -86,7 +86,7 @@ class IDevicePeripheral(btle.Peripheral):
 
         # send device response
         device_response = chr(0) * 8 + device_challenge[8:]
-        logging.info("device response: ", str(device_response).encode("hex"))
+        logging.info("device response: {}".format(str(device_response).encode("hex")))
         encrypted_device_response = encrypt(key, device_response)
         self.characteristic(UUIDS.DEVICE_RESPONSE).write(encrypted_device_response, True)
 
