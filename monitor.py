@@ -33,13 +33,10 @@ def main():
     if not config.isvalid():
         raise ValueError("Config found in directory {0} is not valid".format(options.config_directory))
 
-    # Connect to MQTT
-    client = mqtt_init(config.get_config('mqtt'))
-
     run_event = threading.Event()
     run_event.set()
     # Get device threads
-    devices = get_device_threads(config.get_config('devices'), client, run_event)
+    devices = get_device_threads(config.get_config('devices'), config.get_config('mqtt'), run_event)
 
     for device in devices:
         device.start()

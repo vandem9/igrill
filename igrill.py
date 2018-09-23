@@ -197,13 +197,13 @@ class DeviceThread(threading.Thread):
                     'igrill_v2': IGrillV2Peripheral,
                     'igrill_v3': IGrillV3Peripheral}
 
-    def __init__(self, thread_id, name, address, igrill_type, mqtt_client, topic, interval, run_event):
+    def __init__(self, thread_id, name, address, igrill_type, mqtt_config, topic, interval, run_event):
         threading.Thread.__init__(self)
         self.threadID = thread_id
         self.name = name
         self.address = address
         self.type = igrill_type
-        self.mqtt_client = mqtt_client
+        self.mqtt_client = utils.mqtt_init(mqtt_config)
         self.topic = topic
         self.interval = interval
         self.run_event = run_event
