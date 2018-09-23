@@ -217,7 +217,7 @@ class DeviceThread(threading.Thread):
                     temperature = device.read_temperature()
                     battery = device.read_battery()
                     utils.publish(temperature, battery, self.mqtt_client, self.topic, device.name)
-                    logging.debug("Published temperature: {} and battery: {} to mqtt topic {}".format(temperature, battery, self.topic))
+                    logging.debug("Published temperature: {} and battery: {} to mqtt topic {}/{}".format(temperature, battery, self.topic, device.name))
                     logging.debug("Sleeping for {} seconds".format(self.interval))
                     time.sleep(self.interval)
             except Exception as e:
