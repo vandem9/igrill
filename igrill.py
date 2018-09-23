@@ -42,7 +42,6 @@ class IDevicePeripheral(btle.Peripheral):
         with btle_lock:
             logging.debug("Calling btle.Peripheral.__init__ with lock: {}".format(id(btle_lock)))
             btle.Peripheral.__init__(self, address)
-        btle_lock.release()
         logging.debug("Connected")
         self.name = name
 
