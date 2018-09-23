@@ -122,4 +122,3 @@ def get_device_threads(device_config, mqtt_client, run_event):
 
     return [DeviceThread(ind, d['name'], d['address'], d['type'], mqtt_client, d['topic'], d['interval'], run_event) for ind, d in
             enumerate(device_config)]
-
