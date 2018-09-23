@@ -1,3 +1,4 @@
+from config import strip_config
 from igrill import IGrillMiniPeripheral, IGrillV2Peripheral, IGrillV3Peripheral, DeviceThread
 import logging
 import paho.mqtt.client as mqtt
@@ -91,7 +92,7 @@ def mqtt_init(mqtt_config):
         else:
             mqtt_client.tls_set()
 
-    mqtt_client.connect(**mqtt_config)
+    mqtt_client.connect(**strip_config(mqtt_config, ['host', 'port', 'keepalive']))
     return mqtt_client
 
 
@@ -112,7 +113,7 @@ def get_devices(device_config):
                     'igrill_v2': IGrillV2Peripheral,
                     'igrill_v3': IGrillV3Peripheral}
 
-    return [device_types[d['type']](**d) for d in device_config]
+    return [device_types[d['type']](**strip_config(d, ['address', 'name'])) for d in device_config]
 
 
 def get_device_threads(device_config, mqtt_client, run_event):
@@ -122,3 +123,4 @@ def get_device_threads(device_config, mqtt_client, run_event):
 
     return [DeviceThread(ind, d['name'], d['address'], d['type'], mqtt_client, d['topic'], d['interval'], run_event) for ind, d in
             enumerate(device_config)]
+
