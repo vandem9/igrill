@@ -55,10 +55,10 @@ def log_setup(log_level, logfile):
 
     numeric_level = logging.getLevelName(log_level.upper())
     if not isinstance(numeric_level, int):
-        raise TypeError('Invalid log level: {0}'.format(log_level))
+        raise TypeError("Invalid log level: {0}".format(log_level))
 
     if logfile is not '':
-        logging.info('Logging redirected to: ' + logfile)
+        logging.info("Logging redirected to: ".format(logfile))
         # Need to replace the current handler on the root logger:
         file_handler = logging.FileHandler(logfile, 'a')
         formatter = logging.Formatter('%(asctime)s %(threadName)s %(levelname)s: %(message)s')
@@ -73,7 +73,7 @@ def log_setup(log_level, logfile):
         logging.basicConfig(format='%(asctime)s %(threadName)s %(levelname)s: %(message)s')
 
     logging.getLogger().setLevel(numeric_level)
-    logging.info('log_level set to: {0}'.format(log_level))
+    logging.info("log_level set to: {0}".format(log_level))
 
 
 def mqtt_init(mqtt_config):
@@ -105,7 +105,7 @@ def publish(temperatures, battery, client, base_topic, device_name):
 
 def get_devices(device_config):
     if device_config is None:
-        logging.warn("No devices in config")
+        logging.warn('No devices in config')
         return {}
 
     device_types = {'igrill_mini': IGrillMiniPeripheral,
@@ -117,7 +117,7 @@ def get_devices(device_config):
 
 def get_device_threads(device_config, mqtt_client, run_event):
     if device_config is None:
-        logging.warn("No devices in config")
+        logging.warn('No devices in config')
         return {}
 
     return [DeviceThread(ind, d['name'], d['address'], d['type'], mqtt_client, d['topic'], d['interval'], run_event) for ind, d in
