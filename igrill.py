@@ -224,3 +224,5 @@ class DeviceThread(threading.Thread):
                 logging.debug(e)
                 logging.debug("Sleeping for {} seconds before retrying".format(self.interval))
                 time.sleep(self.interval)
+
+        logging.debug("Thread exiting")
