@@ -197,7 +197,7 @@ class DeviceThread(threading.Thread):
                     'igrill_v2': IGrillV2Peripheral,
                     'igrill_v3': IGrillV3Peripheral}
 
-    def __init__(self, thread_id, name, address, igrill_type, mqtt_client, topic, interval):
+    def __init__(self, thread_id, name, address, igrill_type, mqtt_client, topic, interval, run_event):
         threading.Thread.__init__(self)
         self.threadID = thread_id
         self.name = name
@@ -206,9 +206,10 @@ class DeviceThread(threading.Thread):
         self.mqtt_client = mqtt_client
         self.topic = topic
         self.interval = interval
+        self.run_event = run_event
 
     def run(self):
-        while True:
+        while self.run_event.is_set():
             try:
                 logging.info("Device thread {} (re)started, trying to connect to iGrill with address: {}".format(self.name, self.address))
                 device = self.device_types[self.type](self.address, self.name)

@@ -71,12 +71,12 @@ def get_devices(device_config):
     return [device_types[d['type']](**strip_config(d, ['address', 'name'])) for d in device_config]
 
 
-def get_device_threads(device_config, mqtt_client):
+def get_device_threads(device_config, mqtt_client, run_event):
     if device_config is None:
         logging.warn("No devices in config")
         return {}
 
-    return [DeviceThread(ind, d['name'], d['address'], d['type'], mqtt_client, d['topic'], d['interval']) for ind, d in enumerate(device_config)]
+    return [DeviceThread(ind, d['name'], d['address'], d['type'], mqtt_client, d['topic'], d['interval'], run_event) for ind, d in enumerate(device_config)]
 
 
 def read_config(config_path):
