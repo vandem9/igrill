@@ -26,7 +26,7 @@ def log_setup(log_level, logfile):
         log.addHandler(file_handler)
 
     else:
-        logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s')
+        logging.basicConfig(format='%(asctime)s %(threadName)s %(levelname)s: %(message)s')
 
     logging.getLogger().setLevel(numeric_level)
     logging.info('log_level set to: {0}'.format(log_level))
