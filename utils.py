@@ -1,9 +1,6 @@
 from igrill import IGrillMiniPeripheral, IGrillV2Peripheral, IGrillV3Peripheral, DeviceThread
 import logging
-import os
 import paho.mqtt.client as mqtt
-import yaml
-from yamlreader import yaml_load
 
 config_requirements = {
     'specs': {
@@ -84,17 +81,17 @@ def mqtt_init(mqtt_config):
     mqtt_client = mqtt.Client()
 
     if 'auth' in mqtt_config:
-        auth = strip_config(mqtt_config['auth'], ['username', 'password'])
+        auth = mqtt_config['auth']
         mqtt_client.username_pw_set(**auth)
 
     if 'tls' in mqtt_config:
         if mqtt_config['tls']:
-            tls_config = strip_config(mqtt_config['tls'], ['ca_certs', 'certfile', 'keyfile', 'cert_reqs', 'tls_version'])
+            tls_config = mqtt_config['tls']
             mqtt_client.tls_set(**tls_config)
         else:
             mqtt_client.tls_set()
 
-    mqtt_client.connect(**strip_config(mqtt_config, ['host', 'port', 'keepalive']))
+    mqtt_client.connect(**mqtt_config)
     return mqtt_client
 
 
@@ -115,7 +112,7 @@ def get_devices(device_config):
                     'igrill_v2': IGrillV2Peripheral,
                     'igrill_v3': IGrillV3Peripheral}
 
-    return [device_types[d['type']](**strip_config(d, ['address', 'name'])) for d in device_config]
+    return [device_types[d['type']](**d) for d in device_config]
 
 
 def get_device_threads(device_config, mqtt_client, run_event):
@@ -126,23 +123,3 @@ def get_device_threads(device_config, mqtt_client, run_event):
     return [DeviceThread(ind, d['name'], d['address'], d['type'], mqtt_client, d['topic'], d['interval'], run_event) for ind, d in
             enumerate(device_config)]
 
-
-def read_config(config_path):
-    """Read config file from given location, and parse properties"""
-    if not os.path.isdir(config_path):
-        raise ValueError('{0} is not a directory'.format(config_path))
-
-    defaultconfig = {
-        "mqtt": {
-            "host": "localhost"
-        }
-    }
-
-    try:
-        return yaml_load(config_path, defaultconfig)
-    except yaml.YAMLError:
-        logging.exception('Failed to parse configuration directory:')
-
-
-def strip_config(config, allowed_keys):
-    return {k: v for k, v in config.iteritems() if k in allowed_keys and v}
