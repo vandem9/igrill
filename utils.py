@@ -99,7 +99,7 @@ def mqtt_init(mqtt_config):
 
 
 def publish(temperatures, battery, client, base_topic, device_name):
-    for i in range(1,5):
+    for i in range(1, 5):
         if temperatures[i]:
             client.publish("{0}/{1}/probe{2}".format(base_topic, device_name, i), temperatures[i])
 
@@ -123,7 +123,8 @@ def get_device_threads(device_config, mqtt_client, run_event):
         logging.warn("No devices in config")
         return {}
 
-    return [DeviceThread(ind, d['name'], d['address'], d['type'], mqtt_client, d['topic'], d['interval'], run_event) for ind, d in enumerate(device_config)]
+    return [DeviceThread(ind, d['name'], d['address'], d['type'], mqtt_client, d['topic'], d['interval'], run_event) for ind, d in
+            enumerate(device_config)]
 
 
 def read_config(config_path):
@@ -133,7 +134,7 @@ def read_config(config_path):
 
     defaultconfig = {
         "mqtt": {
-            "host":         "localhost"
+            "host": "localhost"
         }
     }
 
