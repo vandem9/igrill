@@ -5,6 +5,53 @@ import paho.mqtt.client as mqtt
 import yaml
 from yamlreader import yaml_load
 
+config_requirements = {
+    'specs': {
+        'required_entries': {'devices': list, 'mqtt': dict},
+    },
+    'children': {
+        'devices': {
+            'specs': {
+                'required_entries': {'name': str, 'type': str, 'address': str, 'topic': str, 'interval': int},
+                'list_type': dict
+            }
+        },
+        'mqtt': {
+            'specs': {
+                'required_entries': {'host': str},
+                'optional_entries': {'port': int,
+                                     'keepalive': int,
+                                     'auth': dict,
+                                     'tls': dict}
+            },
+            'children': {
+                'auth': {
+                    'specs': {
+                        'required_entries': {'username': str},
+                        'optional_entries': {'password': str}
+                    }
+                },
+                'tls': {
+                    'specs': {
+                        'optional_entries': {'ca_certs': str,
+                                             'certfile': str,
+                                             'keyfile': str,
+                                             'cert_reqs': str,
+                                             'tls_version': str,
+                                             'ciphers': str}
+                    }
+                }
+            }
+        }
+    }
+}
+
+config_defaults = {
+    'mqtt': {
+        'host': 'localhost'
+    }
+}
+
 
 def log_setup(log_level, logfile):
     """Setup application logging"""
