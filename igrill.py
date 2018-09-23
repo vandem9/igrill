@@ -36,6 +36,7 @@ class IDevicePeripheral(btle.Peripheral):
         """
         Connects to the device given by address performing necessary authentication
         """
+        logging.debug("Trying to connect to the device with address {}".format(address))
         btle.Peripheral.__init__(self, address)
 
         self.name = name
@@ -64,7 +65,7 @@ class IDevicePeripheral(btle.Peripheral):
         Performs iDevices challenge/response handshake. Returns if handshake succeeded
 
         """
-        print "Authenticating..."
+        logging.info("Authenticating...")
         # encryption key used by igrill mini
         key = "".join([chr((256 + x) % 256) for x in self.encryption_key])
 
@@ -74,22 +75,22 @@ class IDevicePeripheral(btle.Peripheral):
 
         # read device challenge
         encrypted_device_challenge = self.characteristic(UUIDS.DEVICE_CHALLENGE).read()
-        print "encrypted device challenge:", str(encrypted_device_challenge).encode("hex")
+        logging.debug("encrypted device challenge:", str(encrypted_device_challenge).encode("hex"))
         device_challenge = decrypt(key, encrypted_device_challenge)
-        print "decrypted device challenge:", str(device_challenge).encode("hex")
+        logging.debug("decrypted device challenge:", str(device_challenge).encode("hex"))
 
         # verify device challenge
         if device_challenge[:8] != challenge[:8]:
-            print "Invalid device challenge"
+            logging.warn("Invalid device challenge")
             return False
 
         # send device response
         device_response = chr(0) * 8 + device_challenge[8:]
-        print "device response: ", str(device_response).encode("hex")
+        logging.info("device response: ", str(device_response).encode("hex"))
         encrypted_device_response = encrypt(key, device_response)
         self.characteristic(UUIDS.DEVICE_RESPONSE).write(encrypted_device_response, True)
 
-        print("Authenticated")
+        logging.info("Authenticated")
 
         return True
 
@@ -103,6 +104,7 @@ class IGrillMiniPeripheral(IDevicePeripheral):
     encryption_key = [-19, 94, 48, -114, -117, -52, -111, 19, 48, 108, -44, 104, 84, 21, 62, -35]
 
     def __init__(self, address, name="igrill_mini"):
+        logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name)
 
         # find characteristics for battery and temperature
@@ -128,6 +130,7 @@ class IGrillV2Peripheral(IDevicePeripheral):
     encryption_key = [-33, 51, -32, -119, -12, 72, 78, 115, -110, -44, -49, -71, 70, -25, -123, -74]
 
     def __init__(self, address, name="igrill_v2"):
+        logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name)
 
         # find characteristics for battery and temperature
@@ -162,6 +165,7 @@ class IGrillV3Peripheral(IDevicePeripheral):
     encryption_key = [39, 98, -4, 94, -54, 19, 69, -27, -99, 17, -34, 74, -10, -13, -116, 28]
 
     def __init__(self, address, name="igrill_v3"):
+        logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name)
         # find characteristics for battery and temperature
         self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)

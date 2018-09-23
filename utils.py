@@ -17,7 +17,7 @@ def log_setup(log_level, logfile):
         logging.info('Logging redirected to: ' + logfile)
         # Need to replace the current handler on the root logger:
         file_handler = logging.FileHandler(logfile, 'a')
-        formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+        formatter = logging.Formatter('%(asctime)s %(threadName)s %(levelname)s: %(message)s')
         file_handler.setFormatter(formatter)
 
         log = logging.getLogger()  # root logger
