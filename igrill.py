@@ -186,17 +186,17 @@ class IGrillV3Peripheral(IDevicePeripheral):
         return float(ord(self.battery_char.read()[0]))
 
 
-class DeviceThread (threading.Thread):
+class DeviceThread(threading.Thread):
     device_types = {'igrill_mini': IGrillMiniPeripheral,
-                        'igrill_v2': IGrillV2Peripheral,
-                        'igrill_v3': IGrillV3Peripheral}
+                    'igrill_v2': IGrillV2Peripheral,
+                    'igrill_v3': IGrillV3Peripheral}
 
-    def __init__(self, threadID, name, address, type, mqtt_client, topic, interval):
+    def __init__(self, thread_id, name, address, igrill_type, mqtt_client, topic, interval):
         threading.Thread.__init__(self)
-        self.threadID = threadID
+        self.threadID = thread_id
         self.name = name
         self.address = address
-        self.type = type
+        self.type = igrill_type
         self.mqtt_client = mqtt_client
         self.topic = topic
         self.interval = interval
