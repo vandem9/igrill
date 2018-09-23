@@ -204,7 +204,7 @@ class DeviceThread(threading.Thread):
     def run(self):
         while True:
             try:
-                logging.info("Device thread {} started, trying to connect to iGrill with address: {}".format(self.name, self.address))
+                logging.info("Device thread {} (re)started, trying to connect to iGrill with address: {}".format(self.name, self.address))
                 device = self.device_types[self.type](self.address, self.name)
                 while True:
                     temperature = device.read_temperature()
