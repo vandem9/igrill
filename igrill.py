@@ -5,7 +5,7 @@ import bluepy.btle as btle
 import random
 
 from crypto import encrypt, decrypt
-from utils import publish
+import utils
 
 
 class UUIDS:
@@ -186,7 +186,7 @@ class IGrillV3Peripheral(IDevicePeripheral):
 
 
 class DeviceThread (threading.Thread):
-        device_types = {'igrill_mini': IGrillMiniPeripheral,
+    device_types = {'igrill_mini': IGrillMiniPeripheral,
                         'igrill_v2': IGrillV2Peripheral,
                         'igrill_v3': IGrillV3Peripheral}
 
@@ -200,11 +200,11 @@ class DeviceThread (threading.Thread):
         self.topic = topic
         self.interval = interval
 
-
-
     def run(self):
-        device = self.device_types[type](self.address, self.name)
-
-        while True:
-            publish(device.read_temperature(), device.read_battery(), self.mqtt_client, self.topic, device.name)
+        try:
+            device = self.device_types[self.type](self.address, self.name)
+            while True:
+                utils.publish(device.read_temperature(), device.read_battery(), self.mqtt_client, self.topic, device.name)
+                time.sleep(self.interval)
+        except:
             time.sleep(self.interval)

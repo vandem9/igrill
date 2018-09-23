@@ -31,11 +31,7 @@ def main():
         device.start()
 
     while True:
-        for device in devices:
-            if not device.is_alive():
-                device.start()
-
-        time.sleep(15)
+        time.sleep(60)
 
 
 if __name__ == '__main__':
