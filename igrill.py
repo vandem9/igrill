@@ -9,23 +9,23 @@ from crypto import encrypt, decrypt
 import utils
 
 class UUIDS:
-    FIRMWARE_VERSION   = btle.UUID("64ac0001-4a4b-4b58-9f37-94d3c52ffdf7")
+    FIRMWARE_VERSION   = btle.UUID('64ac0001-4a4b-4b58-9f37-94d3c52ffdf7')
 
-    BATTERY_LEVEL      = btle.UUID("00002A19-0000-1000-8000-00805F9B34FB")
+    BATTERY_LEVEL      = btle.UUID('00002A19-0000-1000-8000-00805F9B34FB')
 
-    APP_CHALLENGE      = btle.UUID("64AC0002-4A4B-4B58-9F37-94D3C52FFDF7")
-    DEVICE_CHALLENGE   = btle.UUID("64AC0003-4A4B-4B58-9F37-94D3C52FFDF7")
-    DEVICE_RESPONSE    = btle.UUID("64AC0004-4A4B-4B58-9F37-94D3C52FFDF7")
+    APP_CHALLENGE      = btle.UUID('64AC0002-4A4B-4B58-9F37-94D3C52FFDF7')
+    DEVICE_CHALLENGE   = btle.UUID('64AC0003-4A4B-4B58-9F37-94D3C52FFDF7')
+    DEVICE_RESPONSE    = btle.UUID('64AC0004-4A4B-4B58-9F37-94D3C52FFDF7')
 
-    CONFIG             = btle.UUID("06ef0002-2e06-4b79-9e33-fce2c42805ec")
-    PROBE1_TEMPERATURE = btle.UUID("06ef0002-2e06-4b79-9e33-fce2c42805ec")
-    PROBE1_THRESHOLD   = btle.UUID("06ef0003-2e06-4b79-9e33-fce2c42805ec")
-    PROBE2_TEMPERATURE = btle.UUID("06ef0004-2e06-4b79-9e33-fce2c42805ec")
-    PROBE2_THRESHOLD   = btle.UUID("06ef0005-2e06-4b79-9e33-fce2c42805ec")
-    PROBE3_TEMPERATURE = btle.UUID("06ef0006-2e06-4b79-9e33-fce2c42805ec")
-    PROBE3_THRESHOLD   = btle.UUID("06ef0007-2e06-4b79-9e33-fce2c42805ec")
-    PROBE4_TEMPERATURE = btle.UUID("06ef0008-2e06-4b79-9e33-fce2c42805ec")
-    PROBE4_THRESHOLD   = btle.UUID("06ef0009-2e06-4b79-9e33-fce2c42805ec")
+    CONFIG             = btle.UUID('06ef0002-2e06-4b79-9e33-fce2c42805ec')
+    PROBE1_TEMPERATURE = btle.UUID('06ef0002-2e06-4b79-9e33-fce2c42805ec')
+    PROBE1_THRESHOLD   = btle.UUID('06ef0003-2e06-4b79-9e33-fce2c42805ec')
+    PROBE2_TEMPERATURE = btle.UUID('06ef0004-2e06-4b79-9e33-fce2c42805ec')
+    PROBE2_THRESHOLD   = btle.UUID('06ef0005-2e06-4b79-9e33-fce2c42805ec')
+    PROBE3_TEMPERATURE = btle.UUID('06ef0006-2e06-4b79-9e33-fce2c42805ec')
+    PROBE3_THRESHOLD   = btle.UUID('06ef0007-2e06-4b79-9e33-fce2c42805ec')
+    PROBE4_TEMPERATURE = btle.UUID('06ef0008-2e06-4b79-9e33-fce2c42805ec')
+    PROBE4_THRESHOLD   = btle.UUID('06ef0009-2e06-4b79-9e33-fce2c42805ec')
 
 
 class IDevicePeripheral(btle.Peripheral):
@@ -45,14 +45,14 @@ class IDevicePeripheral(btle.Peripheral):
 
         # iDevice devices require bonding. I don't think this will give us bonding
         # if no bonding exists, so please use bluetoothctl to create a bond first
-        self.setSecurityLevel("medium")
+        self.setSecurityLevel('medium')
 
         # enumerate all characteristics so we can look up handles from uuids
         self.characteristics = self.getCharacteristics()
 
         # authenticate with iDevices custom challenge/response protocol
         if not self.authenticate():
-            raise RuntimeError("Unable to authenticate with device")
+            raise RuntimeError('Unable to authenticate with device')
 
     def characteristic(self, uuid):
         """
@@ -67,7 +67,7 @@ class IDevicePeripheral(btle.Peripheral):
         Performs iDevices challenge/response handshake. Returns if handshake succeeded
 
         """
-        logging.info("Authenticating...")
+        logging.info('Authenticating...')
         # encryption key used by igrill mini
         key = "".join([chr((256 + x) % 256) for x in self.encryption_key])
 
@@ -83,7 +83,7 @@ class IDevicePeripheral(btle.Peripheral):
 
         # verify device challenge
         if device_challenge[:8] != challenge[:8]:
-            logging.warn("Invalid device challenge")
+            logging.warn('Invalid device challenge')
             return False
 
         # send device response
@@ -92,7 +92,7 @@ class IDevicePeripheral(btle.Peripheral):
         encrypted_device_response = encrypt(key, device_response)
         self.characteristic(UUIDS.DEVICE_RESPONSE).write(encrypted_device_response, True)
 
-        logging.info("Authenticated")
+        logging.info('Authenticated')
 
         return True
 
@@ -105,7 +105,7 @@ class IGrillMiniPeripheral(IDevicePeripheral):
     # encryption key for the iGrill Mini
     encryption_key = [-19, 94, 48, -114, -117, -52, -111, 19, 48, 108, -44, 104, 84, 21, 62, -35]
 
-    def __init__(self, address, name="igrill_mini"):
+    def __init__(self, address, name='igrill_mini'):
         logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name)
 
@@ -131,7 +131,7 @@ class IGrillV2Peripheral(IDevicePeripheral):
     # encryption key for the iGrill v2
     encryption_key = [-33, 51, -32, -119, -12, 72, 78, 115, -110, -44, -49, -71, 70, -25, -123, -74]
 
-    def __init__(self, address, name="igrill_v2"):
+    def __init__(self, address, name='igrill_v2'):
         logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name)
 
@@ -140,7 +140,7 @@ class IGrillV2Peripheral(IDevicePeripheral):
         self.temp_chars = {}
 
         for probe_num in range(1, 5):
-            temp_char_name = 'PROBE{}_TEMPERATURE'.format(probe_num)
+            temp_char_name = "PROBE{}_TEMPERATURE".format(probe_num)
             temp_char = self.characteristic(getattr(UUIDS, temp_char_name))
             self.temp_chars[probe_num] = temp_char
 
@@ -166,7 +166,7 @@ class IGrillV3Peripheral(IDevicePeripheral):
     # encryption key for the iGrill v3
     encryption_key = [39, 98, -4, 94, -54, 19, 69, -27, -99, 17, -34, 74, -10, -13, -116, 28]
 
-    def __init__(self, address, name="igrill_v3"):
+    def __init__(self, address, name='igrill_v3'):
         logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name)
         # find characteristics for battery and temperature
@@ -174,7 +174,7 @@ class IGrillV3Peripheral(IDevicePeripheral):
         self.temp_chars = {}
 
         for probe_num in range(1, 5):
-            temp_char_name = 'PROBE{}_TEMPERATURE'.format(probe_num)
+            temp_char_name = "PROBE{}_TEMPERATURE".format(probe_num)
             temp_char = self.characteristic(getattr(UUIDS, temp_char_name))
             self.temp_chars[probe_num] = temp_char
 
@@ -217,7 +217,7 @@ class DeviceThread(threading.Thread):
                     temperature = device.read_temperature()
                     battery = device.read_battery()
                     utils.publish(temperature, battery, self.mqtt_client, self.topic, device.name)
-                    logging.debug("Published temperature: {} and battery: {} to mqtt topic {}/{}".format(temperature, battery, self.topic, device.name))
+                    logging.debug("Published temp: {} and battery: {} to topic {}/{}".format(temperature, battery, self.topic, device.name))
                     logging.debug("Sleeping for {} seconds".format(self.interval))
                     time.sleep(self.interval)
             except Exception as e:
@@ -225,4 +225,4 @@ class DeviceThread(threading.Thread):
                 logging.debug("Sleeping for {} seconds before retrying".format(self.interval))
                 time.sleep(self.interval)
 
-        logging.debug("Thread exiting")
+        logging.debug('Thread exiting')
