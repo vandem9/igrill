@@ -1,3 +1,4 @@
+import logging
 import threading
 import time
 
@@ -201,10 +202,18 @@ class DeviceThread (threading.Thread):
         self.interval = interval
 
     def run(self):
-        try:
-            device = self.device_types[self.type](self.address, self.name)
-            while True:
-                utils.publish(device.read_temperature(), device.read_battery(), self.mqtt_client, self.topic, device.name)
+        while True:
+            try:
+                logging.info("Device thread {} started, trying to connect to iGrill with address: {}".format(self.name, self.address))
+                device = self.device_types[self.type](self.address, self.name)
+                while True:
+                    temperature = device.read_temperature()
+                    battery = device.read_battery()
+                    utils.publish(temperature, battery, self.mqtt_client, self.topic, device.name)
+                    logging.debug("Published temperature: {} and battery: {} to mqtt topic {}".format(temperature, battery, self.topic))
+                    logging.debug("Sleeping for {} seconds".format(self.interval))
+                    time.sleep(self.interval)
+            except Exception:
+                logging.exception("Error while trying to communicate")
+                logging.debug("Sleeping for {} seconds before retrying".format(self.interval))
                 time.sleep(self.interval)
-        except:
-            time.sleep(self.interval)
