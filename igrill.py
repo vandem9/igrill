@@ -90,7 +90,7 @@ class IDevicePeripheral(btle.Peripheral):
 
         # send device response
         device_response = chr(0) * 8 + device_challenge[8:]
-        logging.info("device response: {}".format(str(device_response).encode("hex")))
+        logging.debug("device response: {}".format(str(device_response).encode("hex")))
         encrypted_device_response = encrypt(key, device_response)
         self.characteristic(UUIDS.DEVICE_RESPONSE).write(encrypted_device_response, True)
 
