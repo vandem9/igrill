@@ -1,3 +1,7 @@
+# Work in progress!
+This branch is not expected to work.
+When finished, it will be merged to master.
+
 # iGrill
 Monitor your iGrill (mini, v2 or v3) (with a Raspberry Pi 1/2/3) - and an forward it to an mqtt-server
 
