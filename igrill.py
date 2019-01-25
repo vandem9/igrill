@@ -1,3 +1,7 @@
+from builtins import str
+from builtins import chr
+from builtins import range
+from builtins import object
 import logging
 import threading
 import time
@@ -10,7 +14,7 @@ import random
 from crypto import encrypt, decrypt
 import utils
 
-class UUIDS:
+class UUIDS(object):
     FIRMWARE_VERSION   = btle.UUID('64ac0001-4a4b-4b58-9f37-94d3c52ffdf7')
 
     BATTERY_LEVEL      = btle.UUID('00002A19-0000-1000-8000-00805F9B34FB')
@@ -148,7 +152,7 @@ class IGrillV2Peripheral(IDevicePeripheral):
 
     def read_temperature(self):
         temps = {}
-        for probe_num, temp_char in self.temp_chars.items():
+        for probe_num, temp_char in list(self.temp_chars.items()):
             temp = ord(temp_char.read()[1]) * 256
             temp += ord(temp_char.read()[0])
 
@@ -182,7 +186,7 @@ class IGrillV3Peripheral(IDevicePeripheral):
 
     def read_temperature(self):
         temps = {}
-        for probe_num, temp_char in self.temp_chars.items():
+        for probe_num, temp_char in list(self.temp_chars.items()):
             temp = ord(temp_char.read()[1]) * 256
             temp += ord(temp_char.read()[0])
 

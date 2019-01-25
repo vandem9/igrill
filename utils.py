@@ -1,3 +1,4 @@
+from builtins import range
 from config import strip_config
 from igrill import IGrillMiniPeripheral, IGrillV2Peripheral, IGrillV3Peripheral, DeviceThread
 import logging
