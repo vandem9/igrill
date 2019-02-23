@@ -1,5 +1,3 @@
-from builtins import str
-from builtins import chr
 from builtins import range
 from builtins import object
 import logging
@@ -74,8 +72,7 @@ class IDevicePeripheral(btle.Peripheral):
 
         """
         logging.info('Authenticating...')
-        # encryption key used by igrill mini
-        key = "".join([chr((256 + x) % 256) for x in self.encryption_key])
+        key = bytes(bytearray([(256 + x) % 256 for x in self.encryption_key]))
 
         # send app challenge
         challenge = bytes(bytearray([(random.randint(0, 255)) for i in range(8)] + [0] * 8))
@@ -93,8 +90,8 @@ class IDevicePeripheral(btle.Peripheral):
             return False
 
         # send device response
-        device_response = chr(0) * 8 + device_challenge[8:]
-        logging.debug("device response: {}".format(str(device_response).encode("hex")))
+        device_response = bytes(bytearray([0 for i in range(8)])) + device_challenge[8:]
+        logging.debug("device response: {}".format(device_response))
         encrypted_device_response = encrypt(key, device_response)
         self.characteristic(UUIDS.DEVICE_RESPONSE).write(encrypted_device_response, True)
 
