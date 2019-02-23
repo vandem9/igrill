@@ -117,13 +117,13 @@ class IGrillMiniPeripheral(IDevicePeripheral):
         self.temp_char = self.characteristic(UUIDS.PROBE1_TEMPERATURE)
 
     def read_temperature(self):
-        temp = ord(self.temp_char.read()[1]) * 256
-        temp += ord(self.temp_char.read()[0])
+        temp = self.temp_char.read()[1] * 256
+        temp += self.temp_char.read()[0]
 
         return {1: float(temp) if float(temp) != 63536.0 else False, 2: False, 3: False, 4: False}
 
     def read_battery(self):
-        return float(ord(self.battery_char.read()[0]))
+        return float(self.battery_char.read()[0])
 
 
 class IGrillV2Peripheral(IDevicePeripheral):
@@ -150,15 +150,15 @@ class IGrillV2Peripheral(IDevicePeripheral):
     def read_temperature(self):
         temps = {}
         for probe_num, temp_char in list(self.temp_chars.items()):
-            temp = ord(temp_char.read()[1]) * 256
-            temp += ord(temp_char.read()[0])
+            temp = temp_char.read()[1] * 256
+            temp += temp_char.read()[0]
 
             temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
 
         return temps
 
     def read_battery(self):
-        return float(ord(self.battery_char.read()[0]))
+        return float(self.battery_char.read()[0])
 
 
 class IGrillV3Peripheral(IDevicePeripheral):
@@ -184,15 +184,15 @@ class IGrillV3Peripheral(IDevicePeripheral):
     def read_temperature(self):
         temps = {}
         for probe_num, temp_char in list(self.temp_chars.items()):
-            temp = ord(temp_char.read()[1]) * 256
-            temp += ord(temp_char.read()[0])
+            temp = temp_char.read()[1] * 256
+            temp += temp_char.read()[0]
 
             temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
 
         return temps
 
     def read_battery(self):
-        return float(ord(self.battery_char.read()[0]))
+        return float(self.battery_char.read()[0])
 
 
 class DeviceThread(threading.Thread):
