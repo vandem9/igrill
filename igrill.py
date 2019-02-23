@@ -4,9 +4,7 @@ import logging
 import threading
 import time
 
-# todo Remove debug hack
-#import bluepy.btle as btle
-import mockbt as btle
+import bluepy.btle as btle
 import random
 
 from crypto import encrypt, decrypt
