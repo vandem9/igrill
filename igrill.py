@@ -115,13 +115,13 @@ class IGrillMiniPeripheral(IDevicePeripheral):
         self.temp_char = self.characteristic(UUIDS.PROBE1_TEMPERATURE)
 
     def read_temperature(self):
-        temp = self.temp_char.read()[1] * 256
-        temp += self.temp_char.read()[0]
+        temp = bytearray(self.temp_char.read())[1] * 256
+        temp += bytearray(self.temp_char.read())[0]
 
         return {1: float(temp) if float(temp) != 63536.0 else False, 2: False, 3: False, 4: False}
 
     def read_battery(self):
-        return float(self.battery_char.read()[0])
+        return float(bytearray(self.battery_char.read())[0])
 
 
 class IGrillV2Peripheral(IDevicePeripheral):
@@ -148,15 +148,15 @@ class IGrillV2Peripheral(IDevicePeripheral):
     def read_temperature(self):
         temps = {}
         for probe_num, temp_char in list(self.temp_chars.items()):
-            temp = temp_char.read()[1] * 256
-            temp += temp_char.read()[0]
+            temp = bytearray(self.temp_char.read())[1] * 256
+            temp += bytearray(self.temp_char.read())[0]
 
             temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
 
         return temps
 
     def read_battery(self):
-        return float(self.battery_char.read()[0])
+        return float(bytearray(self.battery_char.read())[0])
 
 
 class IGrillV3Peripheral(IDevicePeripheral):
@@ -182,15 +182,15 @@ class IGrillV3Peripheral(IDevicePeripheral):
     def read_temperature(self):
         temps = {}
         for probe_num, temp_char in list(self.temp_chars.items()):
-            temp = temp_char.read()[1] * 256
-            temp += temp_char.read()[0]
+            temp = bytearray(self.temp_char.read())[1] * 256
+            temp += bytearray(self.temp_char.read())[0]
 
             temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
 
         return temps
 
     def read_battery(self):
-        return float(self.battery_char.read()[0])
+        return float(bytearray(self.battery_char.read())[0])
 
 
 class DeviceThread(threading.Thread):
