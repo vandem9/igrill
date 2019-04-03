@@ -36,3 +36,11 @@ WantedBy=multi-user.target
 Run `systemctl daemon-reload && systemctl enable igrill && systemctl start igrill`
 
 Next time you reboot, the iGrill service will connect and reconnect if something goes wrong...
+
+## Troubleshooting
+
+If your device is stuck on "Authenticating" the following has been reported to work:
+1. within the file /etc/bluetooth/main.conf under [Policy] check the existence of
+AutoEnable=true
+1. Comment out below line in /lib/udev/rules.d/90-pi-bluetooth.rules
+by prefixing "#" the line ACTION=="add", SUBSYSTEM=="bluetooth", KERNEL=="hci[0-9]*", RUN+="/bin/hciconfig %k up"
