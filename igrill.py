@@ -98,11 +98,8 @@ class IDevicePeripheral(btle.Peripheral):
 
 class IGrillMiniPeripheral(IDevicePeripheral):
     """
-    Specialization of iDevice peripheral for the iGrill Mini (sets the correct encryption key
+    Specialization of iDevice peripheral for the iGrill Mini
     """
-
-    # encryption key for the iGrill Mini
-    encryption_key = [-19, 94, 48, -114, -117, -52, -111, 19, 48, 108, -44, 104, 84, 21, 62, -35]
 
     def __init__(self, address, name='igrill_mini'):
         logging.debug("Created new device with name {}".format(name))
@@ -126,9 +123,6 @@ class IGrillV2Peripheral(IDevicePeripheral):
     """
     Specialization of iDevice peripheral for the iGrill v2
     """
-
-    # encryption key for the iGrill v2
-    encryption_key = [-33, 51, -32, -119, -12, 72, 78, 115, -110, -44, -49, -71, 70, -25, -123, -74]
 
     def __init__(self, address, name='igrill_v2'):
         logging.debug("Created new device with name {}".format(name))
@@ -161,9 +155,6 @@ class IGrillV3Peripheral(IDevicePeripheral):
     """
     Specialization of iDevice peripheral for the iGrill v3
     """
-
-    # encryption key for the iGrill v3
-    encryption_key = [39, 98, -4, 94, -54, 19, 69, -27, -99, 17, -34, 74, -10, -13, -116, 28]
 
     def __init__(self, address, name='igrill_v3'):
         logging.debug("Created new device with name {}".format(name))
