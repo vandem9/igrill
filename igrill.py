@@ -33,7 +33,7 @@ class IDevicePeripheral(btle.Peripheral):
     encryption_key = None
     btle_lock = threading.Lock()
 
-    def __init__(self, address, name):
+    def __init__(self, address, name, num_probes):
         """
         Connects to the device given by address performing necessary authentication
         """
@@ -57,6 +57,16 @@ class IDevicePeripheral(btle.Peripheral):
         # authenticate with iDevices custom challenge/response protocol
         if not self.authenticate():
             raise RuntimeError('Unable to authenticate with device')
+
+        # find characteristics for temperature
+        self.num_probes = num_probes
+        self.temp_chars = {}
+
+        for probe_num in range(1, self.num_probes + 1):
+            temp_char_name = "PROBE{}_TEMPERATURE".format(probe_num)
+            temp_char = self.characteristic(getattr(UUIDS, temp_char_name))
+            self.temp_chars[probe_num] = temp_char
+            logging.debug("Added probe with index {0}, name {1}, and UUID {2}".format(probe_num, temp_char_name, temp_char))
 
     def characteristic(self, uuid):
         """
@@ -102,29 +112,9 @@ class IDevicePeripheral(btle.Peripheral):
     def read_battery(self):
         return float(bytearray(self.battery_char.read())[0])
 
-class IGrillMiniPeripheral(IDevicePeripheral):
-    """
-    Specialization of iDevice peripheral for the iGrill Mini
-    """
-    num_probes = 1
-
-    def __init__(self, address, name='igrill_mini'):
-        logging.debug("Created new device with name {}".format(name))
-        IDevicePeripheral.__init__(self, address, name)
-
-        # find characteristics for temperature
-        self.temp_chars = {}
-
-        for probe_num in range(1, self.num_probes + 1):
-            temp_char_name = "PROBE{}_TEMPERATURE".format(probe_num)
-            temp_char = self.characteristic(getattr(UUIDS, temp_char_name))
-            self.temp_chars[probe_num] = temp_char
-            logging.debug("Added probe with index {0}, name {1}, and UUID {2}".format(probe_num, temp_char_name, temp_char))
-
-
     def read_temperature(self):
         temps = {1: False, 2: False, 3: False, 4: False}
-        
+
         for probe_num, temp_char in list(self.temp_chars.items()):
             temp = bytearray(temp_char.read())[1] * 256
             temp += bytearray(temp_char.read())[0]
@@ -132,32 +122,25 @@ class IGrillMiniPeripheral(IDevicePeripheral):
 
         return temps
 
+
+class IGrillMiniPeripheral(IDevicePeripheral):
+    """
+    Specialization of iDevice peripheral for the iGrill Mini
+    """
+
+    def __init__(self, address, name='igrill_mini', num_probes=1):
+        logging.debug("Created new device with name {}".format(name))
+        IDevicePeripheral.__init__(self, address, name, num_probes)
+
+
 class IGrillV2Peripheral(IDevicePeripheral):
     """
     Specialization of iDevice peripheral for the iGrill v2
     """
 
-    def __init__(self, address, name='igrill_v2'):
+    def __init__(self, address, name='igrill_v2', num_probes=4):
         logging.debug("Created new device with name {}".format(name))
-        IDevicePeripheral.__init__(self, address, name)
-
-        # find characteristics for temperature
-        self.temp_chars = {}
-
-        for probe_num in range(1, 5):
-            temp_char_name = "PROBE{}_TEMPERATURE".format(probe_num)
-            temp_char = self.characteristic(getattr(UUIDS, temp_char_name))
-            self.temp_chars[probe_num] = temp_char
-
-    def read_temperature(self):
-        temps = {}
-        for probe_num, temp_char in list(self.temp_chars.items()):
-            temp = bytearray(self.temp_char.read())[1] * 256
-            temp += bytearray(self.temp_char.read())[0]
-
-            temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
-
-        return temps
+        IDevicePeripheral.__init__(self, address, name, num_probes)
 
 
 class IGrillV3Peripheral(IDevicePeripheral):
@@ -165,26 +148,9 @@ class IGrillV3Peripheral(IDevicePeripheral):
     Specialization of iDevice peripheral for the iGrill v3
     """
 
-    def __init__(self, address, name='igrill_v3'):
+    def __init__(self, address, name='igrill_v3', num_probes=4):
         logging.debug("Created new device with name {}".format(name))
-        IDevicePeripheral.__init__(self, address, name)
-        # find characteristics for and temperature
-        self.temp_chars = {}
-
-        for probe_num in range(1, 5):
-            temp_char_name = "PROBE{}_TEMPERATURE".format(probe_num)
-            temp_char = self.characteristic(getattr(UUIDS, temp_char_name))
-            self.temp_chars[probe_num] = temp_char
-
-    def read_temperature(self):
-        temps = {}
-        for probe_num, temp_char in list(self.temp_chars.items()):
-            temp = bytearray(self.temp_char.read())[1] * 256
-            temp += bytearray(self.temp_char.read())[0]
-
-            temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
-
-        return temps
+        IDevicePeripheral.__init__(self, address, name, num_probes)
 
 
 class DeviceThread(threading.Thread):
