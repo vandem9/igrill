@@ -51,6 +51,9 @@ class IDevicePeripheral(btle.Peripheral):
         # enumerate all characteristics so we can look up handles from uuids
         self.characteristics = self.getCharacteristics()
 
+        # Set handle for reading battery level
+        self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)
+
         # authenticate with iDevices custom challenge/response protocol
         if not self.authenticate():
             raise RuntimeError('Unable to authenticate with device')
@@ -96,6 +99,9 @@ class IDevicePeripheral(btle.Peripheral):
 
         return True
 
+    def read_battery(self):
+        return float(bytearray(self.battery_char.read())[0])
+
 class IGrillMiniPeripheral(IDevicePeripheral):
     """
     Specialization of iDevice peripheral for the iGrill Mini
@@ -105,8 +111,7 @@ class IGrillMiniPeripheral(IDevicePeripheral):
         logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name)
 
-        # find characteristics for battery and temperature
-        self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)
+        # find characteristics for temperature
         self.temp_char = self.characteristic(UUIDS.PROBE1_TEMPERATURE)
 
     def read_temperature(self):
@@ -115,8 +120,6 @@ class IGrillMiniPeripheral(IDevicePeripheral):
 
         return {1: float(temp) if float(temp) != 63536.0 else False, 2: False, 3: False, 4: False}
 
-    def read_battery(self):
-        return float(bytearray(self.battery_char.read())[0])
 
 
 class IGrillV2Peripheral(IDevicePeripheral):
@@ -128,8 +131,7 @@ class IGrillV2Peripheral(IDevicePeripheral):
         logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name)
 
-        # find characteristics for battery and temperature
-        self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)
+        # find characteristics for temperature
         self.temp_chars = {}
 
         for probe_num in range(1, 5):
@@ -146,9 +148,6 @@ class IGrillV2Peripheral(IDevicePeripheral):
             temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
 
         return temps
-
-    def read_battery(self):
-        return float(bytearray(self.battery_char.read())[0])
 
 
 class IGrillV3Peripheral(IDevicePeripheral):
@@ -159,8 +158,7 @@ class IGrillV3Peripheral(IDevicePeripheral):
     def __init__(self, address, name='igrill_v3'):
         logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name)
-        # find characteristics for battery and temperature
-        self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)
+        # find characteristics for and temperature
         self.temp_chars = {}
 
         for probe_num in range(1, 5):
@@ -177,9 +175,6 @@ class IGrillV3Peripheral(IDevicePeripheral):
             temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
 
         return temps
-
-    def read_battery(self):
-        return float(bytearray(self.battery_char.read())[0])
 
 
 class DeviceThread(threading.Thread):
