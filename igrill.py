@@ -106,21 +106,31 @@ class IGrillMiniPeripheral(IDevicePeripheral):
     """
     Specialization of iDevice peripheral for the iGrill Mini
     """
+    num_probes = 1
 
     def __init__(self, address, name='igrill_mini'):
         logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name)
 
         # find characteristics for temperature
-        self.temp_char = self.characteristic(UUIDS.PROBE1_TEMPERATURE)
+        self.temp_chars = {}
+
+        for probe_num in range(1, self.num_probes + 1):
+            temp_char_name = "PROBE{}_TEMPERATURE".format(probe_num)
+            temp_char = self.characteristic(getattr(UUIDS, temp_char_name))
+            self.temp_chars[probe_num] = temp_char
+            logging.debug("Added probe with index {0}, name {1}, and UUID {2}".format(probe_num, temp_char_name, temp_char))
+
 
     def read_temperature(self):
-        temp = bytearray(self.temp_char.read())[1] * 256
-        temp += bytearray(self.temp_char.read())[0]
+        temps = {1: False, 2: False, 3: False, 4: False}
+        
+        for probe_num, temp_char in list(self.temp_chars.items()):
+            temp = bytearray(temp_char.read())[1] * 256
+            temp += bytearray(temp_char.read())[0]
+            temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
 
-        return {1: float(temp) if float(temp) != 63536.0 else False, 2: False, 3: False, 4: False}
-
-
+        return temps
 
 class IGrillV2Peripheral(IDevicePeripheral):
     """
