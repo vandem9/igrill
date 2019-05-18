@@ -1,5 +1,4 @@
 bluepy
-pycrypto
 paho-mqtt
 PyYAML
 yamlreader

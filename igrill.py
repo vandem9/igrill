@@ -7,7 +7,6 @@ import time
 import bluepy.btle as btle
 import random
 
-from crypto import encrypt, decrypt
 import utils
 
 class UUIDS(object):
@@ -67,36 +66,35 @@ class IDevicePeripheral(btle.Peripheral):
     def authenticate(self):
         """
         Performs iDevices challenge/response handshake. Returns if handshake succeeded
-
+        Works for all devices using this handshake, no key required
+        (copied from https://github.com/kins-dev/igrill-smoker, thanks for the tip!)
         """
-        logging.info('Authenticating...')
-        key = bytes(bytearray([(256 + x) % 256 for x in self.encryption_key]))
+        logging.debug("Authenticating...")
 
-        # send app challenge
-        challenge = bytes(bytearray([(random.randint(0, 255)) for i in range(8)] + [0] * 8))
+        # send app challenge (16 bytes) (must be wrapped in a bytearray)
+        challenge = bytes(b'\0' * 16)
+        logging.debug(("Sending key of all 0's: {}").format(challenge.hex()))
         self.characteristic(UUIDS.APP_CHALLENGE).write(challenge, True)
 
-        # read device challenge
+        """
+        Normally we'd have to perform some crypto operations:
+            Write a challenge (in this case 16 bytes of 0)
+            Read the value
+            Decrypt w/ the key
+            Check the first 8 bytes match our challenge
+            Set the first 8 bytes 0
+            Encrypt with the key
+            Send back the new value
+        But wait!  Our first 8 bytes are already 0.  That means we don't need the key.
+        We just hand back the same encrypted value we get and we're good.
+        """
         encrypted_device_challenge = self.characteristic(UUIDS.DEVICE_CHALLENGE).read()
-        logging.debug("original device challenge:  {}".format(challenge))
-        device_challenge = decrypt(key, encrypted_device_challenge)
-        logging.debug("decrypted device challenge: {}".format(device_challenge))
+        logging.debug("encrypted device challenge: {0}".format((encrypted_device_challenge).hex()))
+        self.characteristic(UUIDS.DEVICE_RESPONSE).write(encrypted_device_challenge, True)
 
-        # verify device challenge
-        if device_challenge[:8] != challenge[:8]:
-            logging.warn('Invalid device challenge')
-            return False
-
-        # send device response
-        device_response = bytes(bytearray([0 for i in range(8)])) + device_challenge[8:]
-        logging.debug("device response: {}".format(device_response))
-        encrypted_device_response = encrypt(key, device_response)
-        self.characteristic(UUIDS.DEVICE_RESPONSE).write(encrypted_device_response, True)
-
-        logging.info('Authenticated')
+        logging.debug("Authenticated")
 
         return True
-
 
 class IGrillMiniPeripheral(IDevicePeripheral):
     """
