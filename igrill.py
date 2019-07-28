@@ -86,7 +86,7 @@ class IDevicePeripheral(btle.Peripheral):
 
         # send app challenge (16 bytes) (must be wrapped in a bytearray)
         challenge = bytes(b'\0' * 16)
-        logging.debug(("Sending key of all 0's: {}").format(challenge.hex()))
+        logging.debug("Sending key of all 0's")
         self.characteristic(UUIDS.APP_CHALLENGE).write(challenge, True)
 
         """
@@ -102,7 +102,6 @@ class IDevicePeripheral(btle.Peripheral):
         We just hand back the same encrypted value we get and we're good.
         """
         encrypted_device_challenge = self.characteristic(UUIDS.DEVICE_CHALLENGE).read()
-        logging.debug("encrypted device challenge: {0}".format((encrypted_device_challenge).hex()))
         self.characteristic(UUIDS.DEVICE_RESPONSE).write(encrypted_device_challenge, True)
 
         logging.debug("Authenticated")
