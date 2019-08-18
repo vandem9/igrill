@@ -1,9 +1,9 @@
 # iGrill
-Monitor your iGrill (mini, v2 or v3) (with a Raspberry Pi 1/2/3) - and an forward it to an mqtt-server
+Monitor your iGrill (mini, v2 or v3) (with a Raspberry Pi 1/2/3) - and forward it to a mqtt-server
 
 ## What do you need
 ### Hardware
-* An iGrill Device (and at least one probe) - [iGrill mini](https://www.weber.com/US/en/accessories/cooking/igrill-and-thermometers/7202.html?cgid=1339#start=1), [iGrill v2](https://www.weber.com/US/en/accessories/cooking/igrill-and-thermometers/7203.html?cgid=1339#start=1) or [igrill v3](https://www.weber.com/US/en/accessories/cooking/igrill-and-thermometers/7204.html?cgid=1339#start=1)
+* An iGrill Device (and at least one probe) - **iGrill mini**, **iGrill 2** or **iGrill 3**
 * A bluetooth enabled computer - preferable a raspberry pi
 * A mqtt server as message receiver
 
