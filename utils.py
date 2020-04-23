@@ -104,6 +104,13 @@ def publish(temperatures, battery, client, base_topic, device_name):
 
     client.publish("{0}/{1}/battery".format(base_topic, device_name), battery)
 
+def publishPulse2000(temperatures, battery, main_element, client, base_topic, device_name):
+    for i in range(1, 5):
+        if temperatures[i]:
+            client.publish("{0}/{1}/probe{2}".format(base_topic, device_name, i), temperatures[i])
+
+    client.publish("{0}/{1}/battery".format(base_topic, device_name), battery)
+    client.publish("{0}/{1}/heating_element".format(base_topic, device_name), main_element)
 
 def get_devices(device_config):
     if device_config is None:
@@ -112,7 +119,8 @@ def get_devices(device_config):
 
     device_types = {'igrill_mini': IGrillMiniPeripheral,
                     'igrill_v2': IGrillV2Peripheral,
-                    'igrill_v3': IGrillV3Peripheral}
+                    'igrill_v3': IGrillV3Peripheral,
+                    'pulse_2000': Pulse2000}
 
     return [device_types[d['type']](**strip_config(d, ['address', 'name'])) for d in device_config]
 

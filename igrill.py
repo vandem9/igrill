@@ -27,7 +27,7 @@ class UUIDS(object):
     PROBE3_THRESHOLD   = btle.UUID('06ef0007-2e06-4b79-9e33-fce2c42805ec')
     PROBE4_TEMPERATURE = btle.UUID('06ef0008-2e06-4b79-9e33-fce2c42805ec')
     PROBE4_THRESHOLD   = btle.UUID('06ef0009-2e06-4b79-9e33-fce2c42805ec')
-
+    HEATING_ELEMENTS   = btle.UUID('6c91000a-58dc-41c7-943f-518b278ceaaa')
 
 class IDevicePeripheral(btle.Peripheral):
     encryption_key = None
@@ -53,7 +53,10 @@ class IDevicePeripheral(btle.Peripheral):
 
         # Set handle for reading battery level
         self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)
-
+        
+        #Set handle for reading main elements
+        self.heating_elements = self.characteristic(UUIDS.HEATING_ELEMENTS)
+        
         # authenticate with iDevices custom challenge/response protocol
         if not self.authenticate():
             raise RuntimeError('Unable to authenticate with device')
@@ -110,6 +113,9 @@ class IDevicePeripheral(btle.Peripheral):
 
     def read_battery(self):
         return float(bytearray(self.battery_char.read())[0])
+    
+    def read_heating_elements(self):
+        return bytearray(self.heating_elements.read())
 
     def read_temperature(self):
         temps = {1: False, 2: False, 3: False, 4: False}
@@ -121,6 +127,7 @@ class IDevicePeripheral(btle.Peripheral):
 
         return temps
 
+#To add Pulse 2000 class
 
 class IGrillMiniPeripheral(IDevicePeripheral):
     """
@@ -150,12 +157,21 @@ class IGrillV3Peripheral(IDevicePeripheral):
     def __init__(self, address, name='igrill_v3', num_probes=4):
         logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name, num_probes)
+        
+class Pulse2000(IDevicePeripheral):
+    """
+    Specialization of iDevice peripheral for the Weber Pulse 2000
+    """
 
+    def __init__(self, address, name='pulse_2000', num_probes=4):
+        logging.debug("Created new device with name {}".format(name))
+        IDevicePeripheral.__init__(self, address, name, num_probes)
 
 class DeviceThread(threading.Thread):
     device_types = {'igrill_mini': IGrillMiniPeripheral,
                     'igrill_v2': IGrillV2Peripheral,
-                    'igrill_v3': IGrillV3Peripheral}
+                    'igrill_v3': IGrillV3Peripheral,
+                    'pulse_2000':Pulse2000}
 
     def __init__(self, thread_id, name, address, igrill_type, mqtt_config, topic, interval, run_event):
         threading.Thread.__init__(self)
@@ -177,8 +193,13 @@ class DeviceThread(threading.Thread):
                 while True:
                     temperature = device.read_temperature()
                     battery = device.read_battery()
-                    utils.publish(temperature, battery, self.mqtt_client, self.topic, device.name)
-                    logging.debug("Published temp: {} and battery: {} to topic {}/{}".format(temperature, battery, self.topic, device.name))
+                    heatingelement = device.read_heating_elements()
+                    if device.name == "Pulse 2000":
+                        utils.publishPulse2000(temperature, battery, heatingelement, self.mqtt_client, self.topic, device.name)
+                        logging.debug("Published temp: {}, battery: {} and heating element: {} to topic {}/{}".format(temperature, battery, heatingelement, self.topic, device.name))
+                    else:
+                        utils.publish(temperature, battery, self.mqtt_client, self.topic, device.name)
+                        logging.debug("Published temp: {} and battery: {} to topic {}/{}".format(temperature, battery, self.topic, device.name))
                     logging.debug("Sleeping for {} seconds".format(self.interval))
                     time.sleep(self.interval)
             except Exception as e:

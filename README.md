@@ -1,17 +1,17 @@
 # iGrill
-Monitor your iGrill (mini, v2 or v3) (with a Raspberry Pi 1/2/3) - and forward it to a mqtt-server
+Monitor your iGrill (mini, v2 or v3) or Pulse 2000 (with a Raspberry Pi 1/2/3) - and forward it to a mqtt-server
 
 ## What do you need
 ### Hardware
-* An iGrill Device (and at least one probe) - **iGrill mini**, **iGrill 2** or **iGrill 3**
+* An iGrill Device (and at least one probe) - **iGrill mini**, **iGrill 2** or **iGrill 3** or a **Pulse2000**
 * A bluetooth enabled computer - preferable a raspberry pi
 * A mqtt server as message receiver
 
 ## Installation
 1. clone this repo
-1. install required modules (see requirements.txt)
-1. Add at least one device config (see ./exampleconfig/device.yaml) - to find your device MAC just run `hcitool lescan`
-1. start application `./monitor.py`
+1. install required modules using pip (see requirements.txt)
+1. Add at least one device config (see ./exampleconfig/device.yaml) - to find your device MAC just run `hcitool lescan`, copy it to your root folder where monitor.py resides
+1. start application `./monitor.py` (or add -l debug)
 1. enjoy
 
 ### systemd startup-script
