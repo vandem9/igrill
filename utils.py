@@ -59,7 +59,7 @@ def log_setup(log_level, logfile):
     if not isinstance(numeric_level, int):
         raise TypeError("Invalid log level: {0}".format(log_level))
 
-    if logfile is not '':
+    if logfile != '':
         logging.info("Logging redirected to: ".format(logfile))
         # Need to replace the current handler on the root logger:
         file_handler = logging.FileHandler(logfile, 'a')
