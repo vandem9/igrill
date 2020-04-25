@@ -16,22 +16,7 @@ Monitor your iGrill (mini, v2 or v3) (with a Raspberry Pi 1/2/3) - and forward i
 
 ### systemd startup-script
 
-Place this file into the proper folder - for instance: `/lib/systemd/system/igrill.service`
-
-```bash
-[Unit]
-Description=igrill MQTT service
-After=network.target
-
-[Service]
-Type=simple
-Restart=always
-RestartSec=2
-ExecStart=/usr/bin/python <path_to_igrill_repo>/monitor.py -c <path_to_config_dir>
-
-[Install]
-WantedBy=multi-user.target
-```
+Modify `examplescripts/igrill.service` to mach your setup and copy it to an appropriate place. E.g: `/lib/systemd/system/igrill.service`
 
 Run `systemctl daemon-reload && systemctl enable igrill && systemctl start igrill`
 
