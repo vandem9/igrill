@@ -37,6 +37,16 @@ Run `systemctl daemon-reload && systemctl enable igrill && systemctl start igril
 
 Next time you reboot, the iGrill service will connect and reconnect if something goes wrong...
 
+### Docker
+
+1. clone this repo
+1. Create a folder for your config (E.g. <repo_path>/config)
+1. Copy example config files from exampleconfig folder to your config folder
+1. Modify example config files to match your devices and mqtt setup
+1. Build Docker image: `docker build . -t igrill`
+1. Run docker image, mounting the config folder: `docker run --network host --name igrill -v <path_to_config_dir>:/usr/src/igrill/config igrill`
+1. Profit!
+
 ## Troubleshooting
 
 If your device is stuck on "Authenticating" the following has been reported to work:
