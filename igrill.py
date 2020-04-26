@@ -201,7 +201,7 @@ class DeviceThread(threading.Thread):
                     temperature = device.read_temperature()
                     battery = device.read_battery()
                     heating_element = device.read_heating_elements()
-                    utils.publish(temperature, heating_element, battery, self.mqtt_client, self.topic, device.name)
+                    utils.publish(temperature, battery, heating_element, self.mqtt_client, self.topic, device.name)
                     logging.debug("Published temp: {} and battery: {} to topic {}/{}".format(temperature, battery, self.topic, device.name))
                     logging.debug("Sleeping for {} seconds".format(self.interval))
                     time.sleep(self.interval)
