@@ -9,6 +9,7 @@ import random
 
 import utils
 
+
 class UUIDS(object):
     FIRMWARE_VERSION   = btle.UUID('64ac0001-4a4b-4b58-9f37-94d3c52ffdf7')
 
@@ -123,13 +124,14 @@ class IDevicePeripheral(btle.Peripheral):
     def read_heating_elements(self):
         return bytearray(self.heating_elements.read()) if self.has_heating_element else None
 
-    def read_temperature(self):
+    def read_temperature(self, publish_empty, missing_value):
+        empty = False if not publish_empty else missing_value
         temps = {1: False, 2: False, 3: False, 4: False}
 
         for probe_num, temp_char in list(self.temp_chars.items()):
             temp = bytearray(temp_char.read())[1] * 256
             temp += bytearray(temp_char.read())[0]
-            temps[probe_num] = float(temp) if float(temp) != 63536.0 else False
+            temps[probe_num] = float(temp) if float(temp) != 63536.0 else empty
 
         return temps
 
@@ -180,16 +182,28 @@ class DeviceThread(threading.Thread):
                     'igrill_v3': IGrillV3Peripheral,
                     'pulse_2000': Pulse2000Peripheral}
 
-    def __init__(self, thread_id, name, address, igrill_type, mqtt_config, topic, interval, run_event):
+    def __init__(self, thread_id,
+                 mqtt_config,
+                 run_event,
+                 name,
+                 address,
+                 type,
+                 topic,
+                 interval,
+                 publish_missing_probes=False,
+                 missing_probe_value="missing"):
+
         threading.Thread.__init__(self)
         self.threadID = thread_id
         self.name = name
         self.address = address
-        self.type = igrill_type
+        self.type = type
         self.mqtt_client = utils.mqtt_init(mqtt_config)
         self.topic = topic
         self.interval = interval
         self.run_event = run_event
+        self.publish_missing_probes = publish_missing_probes
+        self.missing_probe_value = missing_probe_value
 
     def run(self):
         while self.run_event.is_set():
@@ -198,7 +212,7 @@ class DeviceThread(threading.Thread):
                 device = self.device_types[self.type](self.address, self.name)
                 self.mqtt_client.reconnect()
                 while True:
-                    temperature = device.read_temperature()
+                    temperature = device.read_temperature(self.publish_missing_probes, self.missing_probe_value)
                     battery = device.read_battery()
                     heating_element = device.read_heating_elements()
                     utils.publish(temperature, battery, heating_element, self.mqtt_client, self.topic, device.name)

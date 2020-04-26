@@ -12,6 +12,7 @@ config_requirements = {
         'devices': {
             'specs': {
                 'required_entries': {'name': str, 'type': str, 'address': str, 'topic': str, 'interval': int},
+                'optional_entries': {'publish_missing_probes': bool, 'missing_probe_value': str},
                 'list_type': dict
             }
         },
@@ -126,5 +127,5 @@ def get_device_threads(device_config, mqtt_config, run_event):
         logging.warn('No devices in config')
         return {}
 
-    return [DeviceThread(ind, d['name'], d['address'], d['type'], mqtt_config, d['topic'], d['interval'], run_event) for ind, d in
+    return [DeviceThread(ind, mqtt_config, run_event, **d) for ind, d in
             enumerate(device_config)]
