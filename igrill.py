@@ -29,11 +29,14 @@ class UUIDS(object):
     PROBE4_THRESHOLD   = btle.UUID('06ef0009-2e06-4b79-9e33-fce2c42805ec')
     HEATING_ELEMENTS   = btle.UUID('6c91000a-58dc-41c7-943f-518b278ceaaa')
 
+
 class IDevicePeripheral(btle.Peripheral):
     encryption_key = None
     btle_lock = threading.Lock()
+    has_battery = None
+    has_heating_element = None
 
-    def __init__(self, address, name, num_probes):
+    def __init__(self, address, name, num_probes, has_battery=True, has_heating_element=False):
         """
         Connects to the device given by address performing necessary authentication
         """
@@ -43,7 +46,8 @@ class IDevicePeripheral(btle.Peripheral):
             btle.Peripheral.__init__(self, address)
             logging.debug("Releasing lock: {}".format(id(self.btle_lock)))
         self.name = name
-
+        self.has_battery = has_battery
+        self.has_heating_element = has_heating_element
         # iDevice devices require bonding. I don't think this will give us bonding
         # if no bonding exists, so please use bluetoothctl to create a bond first
         self.setSecurityLevel('medium')
@@ -52,11 +56,13 @@ class IDevicePeripheral(btle.Peripheral):
         self.characteristics = self.getCharacteristics()
 
         # Set handle for reading battery level
-        self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)
-        
-        #Set handle for reading main elements
-        self.heating_elements = self.characteristic(UUIDS.HEATING_ELEMENTS)
-        
+        if has_battery:
+            self.battery_char = self.characteristic(UUIDS.BATTERY_LEVEL)
+
+        # Set handle for reading main elements
+        if has_heating_element:
+            self.heating_elements = self.characteristic(UUIDS.HEATING_ELEMENTS)
+
         # authenticate with iDevices custom challenge/response protocol
         if not self.authenticate():
             raise RuntimeError('Unable to authenticate with device')
@@ -112,10 +118,10 @@ class IDevicePeripheral(btle.Peripheral):
         return True
 
     def read_battery(self):
-        return float(bytearray(self.battery_char.read())[0])
-    
+        return float(bytearray(self.battery_char.read())[0]) if self.has_battery else None
+
     def read_heating_elements(self):
-        return bytearray(self.heating_elements.read())
+        return bytearray(self.heating_elements.read()) if self.has_heating_element else None
 
     def read_temperature(self):
         temps = {1: False, 2: False, 3: False, 4: False}
@@ -127,7 +133,6 @@ class IDevicePeripheral(btle.Peripheral):
 
         return temps
 
-#To add Pulse 2000 class
 
 class IGrillMiniPeripheral(IDevicePeripheral):
     """
@@ -157,21 +162,23 @@ class IGrillV3Peripheral(IDevicePeripheral):
     def __init__(self, address, name='igrill_v3', num_probes=4):
         logging.debug("Created new device with name {}".format(name))
         IDevicePeripheral.__init__(self, address, name, num_probes)
-        
-class Pulse2000(IDevicePeripheral):
+
+
+class Pulse2000Peripheral(IDevicePeripheral):
     """
     Specialization of iDevice peripheral for the Weber Pulse 2000
     """
 
     def __init__(self, address, name='pulse_2000', num_probes=4):
         logging.debug("Created new device with name {}".format(name))
-        IDevicePeripheral.__init__(self, address, name, num_probes)
+        IDevicePeripheral.__init__(self, address, name, num_probes, has_heating_element=True)
+
 
 class DeviceThread(threading.Thread):
     device_types = {'igrill_mini': IGrillMiniPeripheral,
                     'igrill_v2': IGrillV2Peripheral,
                     'igrill_v3': IGrillV3Peripheral,
-                    'pulse_2000':Pulse2000}
+                    'pulse_2000': Pulse2000Peripheral}
 
     def __init__(self, thread_id, name, address, igrill_type, mqtt_config, topic, interval, run_event):
         threading.Thread.__init__(self)
@@ -193,13 +200,9 @@ class DeviceThread(threading.Thread):
                 while True:
                     temperature = device.read_temperature()
                     battery = device.read_battery()
-                    heatingelement = device.read_heating_elements()
-                    if device.name == "Pulse 2000":
-                        utils.publishPulse2000(temperature, battery, heatingelement, self.mqtt_client, self.topic, device.name)
-                        logging.debug("Published temp: {}, battery: {} and heating element: {} to topic {}/{}".format(temperature, battery, heatingelement, self.topic, device.name))
-                    else:
-                        utils.publish(temperature, battery, self.mqtt_client, self.topic, device.name)
-                        logging.debug("Published temp: {} and battery: {} to topic {}/{}".format(temperature, battery, self.topic, device.name))
+                    heating_element = device.read_heating_elements()
+                    utils.publish(temperature, heating_element, battery, self.mqtt_client, self.topic, device.name)
+                    logging.debug("Published temp: {} and battery: {} to topic {}/{}".format(temperature, battery, self.topic, device.name))
                     logging.debug("Sleeping for {} seconds".format(self.interval))
                     time.sleep(self.interval)
             except Exception as e:
