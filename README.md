@@ -25,7 +25,8 @@ Next time you reboot, the iGrill service will connect and reconnect if something
 
 ### Docker
 
-1. clone this repo
+1. Clone this repo
+1. Install docker on your system.
 1. Create a dir for your config file(s) (E.g. ./config)
 1. Add at least one device config (see ./exampleconfig/device.yaml) - You need the MAC address of your device, you can find it with `hcitool lescan`
 1. Build Docker image: `docker build . -t igrill`
