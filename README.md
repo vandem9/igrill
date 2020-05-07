@@ -10,8 +10,8 @@ Monitor your iGrill (mini, v2 or v3) or Pulse 2000 (with a Raspberry Pi 1/2/3) -
 ## Installation
 1. clone this repo
 1. install required modules using pip (see requirements.txt)
-1. Add at least one device config (see ./exampleconfig/device.yaml) - to find your device MAC just run `hcitool lescan`
-1. Create a dir for your config file(s) and copy them there (E.g. ./config)
+1. Create a dir for your config file(s) (E.g. ./config)
+1. Add at least one device config (see ./exampleconfig/device.yaml) - You need the MAC address of your device, you can find it with `hcitool lescan`
 1. start application `./monitor.py -c <path_to_config_dir` (or add -l debug)
 1. enjoy
 
