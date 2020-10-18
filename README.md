@@ -40,3 +40,6 @@ If your device is stuck on "Authenticating" the following has been reported to w
 AutoEnable=true
 1. Comment out below line in /lib/udev/rules.d/90-pi-bluetooth.rules
 by prefixing "#" the line ACTION=="add", SUBSYSTEM=="bluetooth", KERNEL=="hci[0-9]*", RUN+="/bin/hciconfig %k up"
+
+If you are struggling with flaky Bluetooth connection. (E.g. The device connects and works for a while, then disappears)
+Try to test without using onboard Bluetooth and WiFi at the same time. Either with a cabled Ethernet connection or with a separate WiFi or Bluetooth dongle.
