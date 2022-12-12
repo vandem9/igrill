@@ -1,6 +1,12 @@
 # iGrill
 Monitor your iGrill (mini, v2 or v3) or Pulse 2000 (with a Raspberry Pi 1/2/3) - and forward it to a mqtt-server
 
+## Deprication
+
+This project is no longer in active development by me. I have moved on to using an ESP32 and ESPHome to connect to, and publish my themometer to Home assistant.
+https://github.com/bendikwa/esphome-igrill/
+
+
 ## What do you need
 ### Hardware
 * An iGrill Device (and at least one probe) - **iGrill mini**, **iGrill 2** or **iGrill 3** or a **Pulse2000**
