@@ -3,7 +3,7 @@ Monitor your iGrill (mini, v2 or v3) or Pulse 2000 (with a Raspberry Pi 1/2/3) -
 
 ## Deprication
 
-This project is no longer in active development by me. I have moved on to using an ESP32 and ESPHome to connect to, and publish my themometer to Home assistant.
+This project is no longer in active development by me. I have moved on to using an ESP32 and ESPHome to connect to, and publish my thermometer to Home assistant.
 https://github.com/bendikwa/esphome-igrill/
 
 
