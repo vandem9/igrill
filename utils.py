@@ -115,24 +115,28 @@ def mqtt_init(mqtt_config):
 
 
 def publish(temperatures, battery, heating_element, client, base_topic, device_name):
-    options = parser.parse_args()
-    config = Config(options.config_directory, config_requirements, config_defaults)
-    mqtt_config = config.get_config('mqtt')
 
-    if 'aws_iot' in mqtt_config and mqtt_config['aws_iot'] == True:
+    aws_options = parser.parse_args()
+    aws_config = Config(aws_options.config_directory, config_requirements, config_defaults)
+    aws_mqtt_config = aws_config.get_config('mqtt')
+
+    logging.debug("config")
+    logging.debug(aws_mqtt_config)
+
+    if 'aws_iot' in aws_mqtt_config and aws_mqtt_config['aws_iot'] == True:
         logging.debug("using aws iot client")
 
-        mqtt_tls_config = mqtt_config['tls']
+        mqtt_tls_config = aws_mqtt_config['tls']
 
         mqtt_connection = mqtt_connection_builder.mtls_from_path(
-            endpoint=mqtt_config['host'],
-            port=mqtt_config['port'],
+            endpoint=aws_mqtt_config['host'],
+            port=aws_mqtt_config['port'],
             cert_filepath=mqtt_tls_config['certfile'],
             pri_key_filepath=mqtt_tls_config['keyfile'],
             ca_filepath=mqtt_tls_config['ca_certs'],
             client_id="pubClient",
             clean_session=False,
-            keep_alive_secs=mqtt_config['keepalive']
+            keep_alive_secs=aws_mqtt_config['keepalive']
         )
 
         logging.debug("connecting")
