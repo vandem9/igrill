@@ -114,7 +114,7 @@ def mqtt_init(mqtt_config):
 def publish(temperatures, battery, heating_element, client, base_topic, device_name):
     options = parser.parse_args()
     config = Config(options.config_directory, config_requirements, config_defaults)
-    
+
     logging.debug(config.get_config('mqtt'))
 
     for i in range(1, 5):
