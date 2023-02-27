@@ -152,7 +152,7 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
             qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
         )
 
-        logging.debug(publishResult)
+        publishResult.result()
 
         logging.debug("disconnecting")
         disconnect_future = mqtt_connection.disconnect()
