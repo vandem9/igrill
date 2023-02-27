@@ -20,7 +20,8 @@ config_requirements = {
         },
         'mqtt': {
             'specs': {
-                'required_entries': {'host': str},
+                'required_entries': {'host': str,
+                                     'aws_iot': bool},
                 'optional_entries': {'port': int,
                                      'keepalive': int,
                                      'auth': dict,
@@ -115,8 +116,8 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
     options = parser.parse_args()
     config = Config(options.config_directory, config_requirements, config_defaults)
 
-    if 'aws_iot' in config['mqtt'] and config['mqtt']['aws_iot'] == True:
-        logging.debug("using aws iot client")
+    #if 'aws_iot' in config['mqtt'] and config['mqtt']['aws_iot'] == True:
+    #    logging.debug("using aws iot client")
 
     for i in range(1, 5):
         if temperatures[i]:
