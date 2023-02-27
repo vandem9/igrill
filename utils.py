@@ -126,6 +126,9 @@ def putMetricData(metricName, value, currentTimestamp):
         ]
     )
 
+    logging.debug("putted metric data")
+    logging.debug(response)
+
     time.sleep(6)
 
 def publish(temperatures, battery, heating_element, client, base_topic, device_name):
