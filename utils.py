@@ -1,5 +1,7 @@
 from builtins import range
 from config import strip_config
+from config import Config
+import argparse
 from igrill import IGrillMiniPeripheral, IGrillV2Peripheral, IGrillV3Peripheral, Pulse2000Peripheral, DeviceThread
 import logging
 import paho.mqtt.client as mqtt
@@ -52,6 +54,17 @@ config_defaults = {
     }
 }
 
+parser = argparse.ArgumentParser(description='Monitor bluetooth igrill devices, and export to MQTT')
+parser.add_argument('-c', '--config', action='store', dest='config_directory', default='.',
+                    help='Set config directory, default: \'.\'')
+parser.add_argument('-l', '--log-level', action='store', dest='log_level', default='INFO',
+                    help='Set log level, default: \'info\'')
+parser.add_argument('-d', '--log-destination', action='store', dest='log_destination', default='',
+                    help='Set log destination (file), default: \'\' (stdout)')
+parser.add_argument('--configtest', help='Parse config only',
+                    action="store_true")
+options = parser.parse_args()
+
 
 def log_setup(log_level, logfile):
     """Setup application logging"""
@@ -99,6 +112,11 @@ def mqtt_init(mqtt_config):
 
 
 def publish(temperatures, battery, heating_element, client, base_topic, device_name):
+    options = parser.parse_args()
+    config = Config(options.config_directory, config_requirements, config_defaults)
+    
+    logging.debug(config.get_config('mqtt'))
+
     for i in range(1, 5):
         if temperatures[i]:
             client.publish("{0}/{1}/probe{2}".format(base_topic, device_name, i), temperatures[i])

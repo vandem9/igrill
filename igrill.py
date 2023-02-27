@@ -5,7 +5,6 @@ import threading
 import time
 
 import bluepy.btle as btle
-import random
 
 import utils
 
