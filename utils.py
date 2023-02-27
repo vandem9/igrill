@@ -7,6 +7,7 @@ import logging
 import paho.mqtt.client as mqtt
 from awsiot import mqtt_connection_builder
 from awscrt import mqtt as aws_iot_mqtt
+import json
 
 config_requirements = {
     'specs': {
@@ -143,7 +144,7 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
 
         mqtt_connection.publish(
             topic="test/topic",
-            payload="test123",
+            payload=json.dumps("test123"),
             qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
         )
 
