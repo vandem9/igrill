@@ -7,6 +7,7 @@ import logging
 import paho.mqtt.client as mqtt
 from awsiot import mqtt_connection_builder
 from awscrt import mqtt as aws_iot_mqtt
+from awscrt import io
 import json
 
 config_requirements = {
@@ -126,21 +127,25 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
 
         mqtt_tls_config = aws_mqtt_config['tls']
 
+        event_loop_group = io.EventLoopGroup(1)
+        host_resolver = io.DefaultHostResolver(event_loop_group)
+        client_bootstrap = io.ClientBootstrap(event_loop_group, host_resolver)
         mqtt_connection = mqtt_connection_builder.mtls_from_path(
             endpoint=aws_mqtt_config['host'],
             port=aws_mqtt_config['port'],
             cert_filepath=mqtt_tls_config['certfile'],
             pri_key_filepath=mqtt_tls_config['keyfile'],
+            client_bootstrap=client_bootstrap,
             ca_filepath=mqtt_tls_config['ca_certs'],
             client_id="pubClient",
             clean_session=False,
             keep_alive_secs=30
         )
 
-        # logging.debug("connecting")
-        # connect_future = mqtt_connection.connect()
-        # connect_future.result()
-        # logging.debug("connected")
+        logging.debug("connecting")
+        connect_future = mqtt_connection.connect()
+        connect_future.result()
+        logging.debug("connected")
 
         mqtt_connection.publish(
             topic="test/topic",
@@ -148,10 +153,10 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
             qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
         )
 
-        # logging.debug("disconnecting")
-        # disconnect_future = mqtt_connection.disconnect()
-        # disconnect_future.result()
-        # logging.debug("disconnected")
+        logging.debug("disconnecting")
+        disconnect_future = mqtt_connection.disconnect()
+        disconnect_future.result()
+        logging.debug("disconnected")
 
     else:
         logging.debug("using legacy mqtt")
