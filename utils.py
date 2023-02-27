@@ -136,10 +136,10 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
             keep_alive_secs=30
         )
 
-        logging.debug("connecting")
-        connect_future = mqtt_connection.connect()
-        connect_future.result()
-        logging.debug("connected")
+        # logging.debug("connecting")
+        # connect_future = mqtt_connection.connect()
+        # connect_future.result()
+        # logging.debug("connected")
 
         mqtt_connection.publish(
             topic="test/topic",
@@ -147,10 +147,10 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
             qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
         )
 
-        logging.debug("disconnecting")
-        disconnect_future = mqtt_connection.disconnect()
-        disconnect_future.result()
-        logging.debug("disconnected")
+        # logging.debug("disconnecting")
+        # disconnect_future = mqtt_connection.disconnect()
+        # disconnect_future.result()
+        # logging.debug("disconnected")
 
     else:
         logging.debug("using legacy mqtt")
