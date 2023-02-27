@@ -120,51 +120,48 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
     aws_config = Config(aws_options.config_directory, config_requirements, config_defaults)
     aws_mqtt_config = aws_config.get_config('mqtt')
 
-    logging.debug("config")
-    logging.debug(aws_mqtt_config)
+    if 'aws_iot' in aws_mqtt_config and aws_mqtt_config['aws_iot'] == True:
+        logging.debug("using aws iot client")
 
-    # if 'aws_iot' in aws_mqtt_config and aws_mqtt_config['aws_iot'] == True:
-    #     logging.debug("using aws iot client")
-    #
-    #     mqtt_tls_config = aws_mqtt_config['tls']
-    #
-    #     mqtt_connection = mqtt_connection_builder.mtls_from_path(
-    #         endpoint=aws_mqtt_config['host'],
-    #         port=aws_mqtt_config['port'],
-    #         cert_filepath=mqtt_tls_config['certfile'],
-    #         pri_key_filepath=mqtt_tls_config['keyfile'],
-    #         ca_filepath=mqtt_tls_config['ca_certs'],
-    #         client_id="pubClient",
-    #         clean_session=False,
-    #         keep_alive_secs=aws_mqtt_config['keepalive']
-    #     )
-    #
-    #     logging.debug("connecting")
-    #     connect_future = mqtt_connection.connect()
-    #     connect_future.result()
-    #     logging.debug("connected")
-    #
-    #     mqtt_connection.publish(
-    #         topic="test/topic",
-    #         payload="test123",
-    #         qos=mqtt.QoS.AT_LEAST_ONCE
-    #     )
-    #
-    #     logging.debug("disconnecting")
-    #     disconnect_future = mqtt_connection.disconnect()
-    #     disconnect_future.result()
-    #     logging.debug("disconnected")
+        mqtt_tls_config = aws_mqtt_config['tls']
 
-    #else:
-    logging.debug("using legacy mqtt")
-    for i in range(1, 5):
-        if temperatures[i]:
-            client.publish("{0}/{1}/probe{2}".format(base_topic, device_name, i), temperatures[i])
+        mqtt_connection = mqtt_connection_builder.mtls_from_path(
+            endpoint=aws_mqtt_config['host'],
+            port=aws_mqtt_config['port'],
+            cert_filepath=mqtt_tls_config['certfile'],
+            pri_key_filepath=mqtt_tls_config['keyfile'],
+            ca_filepath=mqtt_tls_config['ca_certs'],
+            client_id="pubClient",
+            clean_session=False,
+            keep_alive_secs=aws_mqtt_config['keepalive']
+        )
 
-    if battery:
-        client.publish("{0}/{1}/battery".format(base_topic, device_name), battery)
-    if heating_element:
-        client.publish("{0}/{1}/heating_element".format(base_topic, device_name), heating_element)
+        logging.debug("connecting")
+        connect_future = mqtt_connection.connect()
+        connect_future.result()
+        logging.debug("connected")
+
+        mqtt_connection.publish(
+            topic="test/topic",
+            payload="test123",
+            qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
+        )
+
+        logging.debug("disconnecting")
+        disconnect_future = mqtt_connection.disconnect()
+        disconnect_future.result()
+        logging.debug("disconnected")
+
+    else:
+        logging.debug("using legacy mqtt")
+        for i in range(1, 5):
+            if temperatures[i]:
+                client.publish("{0}/{1}/probe{2}".format(base_topic, device_name, i), temperatures[i])
+
+        if battery:
+            client.publish("{0}/{1}/battery".format(base_topic, device_name), battery)
+        if heating_element:
+            client.publish("{0}/{1}/heating_element".format(base_topic, device_name), heating_element)
 
 
 def get_devices(device_config):
