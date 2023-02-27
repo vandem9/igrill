@@ -146,11 +146,13 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
         connect_future.result()
         logging.debug("connected")
 
-        mqtt_connection.publish(
+        publishResult = mqtt_connection.publish(
             topic="igrill/test",
             payload=json.dumps("test123"),
             qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
         )
+
+        logging.debug(publishResult)
 
         logging.debug("disconnecting")
         disconnect_future = mqtt_connection.disconnect()
