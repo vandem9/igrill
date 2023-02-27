@@ -125,6 +125,7 @@ def putMetricData(metricName, value, currentTimestamp):
             }
         ]
     )
+    time.sleep(1)
 
 def publish(temperatures, battery, heating_element, client, base_topic, device_name):
     aws_options = parser.parse_args()
