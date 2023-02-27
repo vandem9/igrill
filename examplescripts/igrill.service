@@ -1,6 +1,6 @@
 [Unit]
 Description=igrill MQTT service
-After=network.target
+After=multi-user.target
 
 [Service]
 Type=simple
