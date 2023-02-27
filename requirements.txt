@@ -3,4 +3,4 @@ paho-mqtt==1.4.0
 PyYAML==5.1.2
 yamlreader==3.0.4
 future==0.17.1
-awsiotsdk
+boto3

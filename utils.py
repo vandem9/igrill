@@ -5,11 +5,8 @@ import argparse
 from igrill import IGrillMiniPeripheral, IGrillV2Peripheral, IGrillV3Peripheral, Pulse2000Peripheral, DeviceThread
 import logging
 import paho.mqtt.client as mqtt
-from awsiot import mqtt_connection_builder
-from awscrt import mqtt as aws_iot_mqtt
-from awscrt import io
-import json
-import time as t
+import boto3
+import time
 
 config_requirements = {
     'specs': {
@@ -26,7 +23,7 @@ config_requirements = {
         'mqtt': {
             'specs': {
                 'required_entries': {'host': str,
-                                     'aws_iot': bool},
+                                     'aws_cloudwatch_metrics': bool},
                 'optional_entries': {'port': int,
                                      'keepalive': int,
                                      'auth': dict,
@@ -116,58 +113,33 @@ def mqtt_init(mqtt_config):
     mqtt_client.connect(**strip_config(mqtt_config, ['host', 'port', 'keepalive']))
     return mqtt_client
 
+def putMetricData(metricName, value, currentTimestamp):
+    cwClient = boto3.client('cloudwatch')
+    response = cwClient.put_metric_data(
+        Namespace='iGrill',
+        MetricData=[
+            {
+                'MetricName': metricName,
+                'Timestamp': currentTimestamp,
+                'Value': value
+            }
+        ]
+    )
 
 def publish(temperatures, battery, heating_element, client, base_topic, device_name):
-
     aws_options = parser.parse_args()
     aws_config = Config(aws_options.config_directory, config_requirements, config_defaults)
     aws_mqtt_config = aws_config.get_config('mqtt')
 
-    if 'aws_iot' in aws_mqtt_config and aws_mqtt_config['aws_iot'] == True:
-        logging.debug("using aws iot client")
-
-        mqtt_tls_config = aws_mqtt_config['tls']
-
-        event_loop_group = io.EventLoopGroup(1)
-        host_resolver = io.DefaultHostResolver(event_loop_group)
-        client_bootstrap = io.ClientBootstrap(event_loop_group, host_resolver)
-        mqtt_connection = mqtt_connection_builder.mtls_from_path(
-            endpoint=aws_mqtt_config['host'],
-            cert_filepath=mqtt_tls_config['certfile'],
-            pri_key_filepath=mqtt_tls_config['keyfile'],
-            client_bootstrap=client_bootstrap,
-            ca_filepath=mqtt_tls_config['ca_certs'],
-            client_id="iGrillClient",
-            clean_session=False,
-            keep_alive_secs=30
-        )
-
-        logging.debug("connecting")
-        connect_future = mqtt_connection.connect()
-        connect_future.result()
-        logging.debug("connected")
+    if 'aws_cloudwatch_metrics' in aws_mqtt_config and aws_mqtt_config['aws_cloudwatch_metrics'] == True:
+        logging.debug("using aws cloudwatch metrics")
+        currentTimestamp = time.time()
 
         for i in range(1, 5):
             if temperatures[i]:
-                mqtt_connection.publish(
-                    topic="{0}/probe{1}".format(base_topic, i),
-                    payload=json.dumps(temperatures[i]),
-                    qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
-                )
-
+                putMetricData("probe" + str(i), temperatures[i], currentTimestamp)
         if battery:
-            mqtt_connection.publish(
-                topic="{0}/battery".format(base_topic),
-                payload=json.dumps(battery),
-                qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
-            )
-
-        t.sleep(1)
-
-        logging.debug("disconnecting")
-        disconnect_future = mqtt_connection.disconnect()
-        disconnect_future.result()
-        logging.debug("disconnected")
+            putMetricData("battery", battery, currentTimestamp)
 
     else:
         logging.debug("using legacy mqtt")
