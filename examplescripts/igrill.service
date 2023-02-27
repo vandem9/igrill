@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 Restart=always
 RestartSec=2
-ExecStart=/usr/bin/python <path_to_igrill_repo>/monitor.py -c <path_to_config_dir>
+ExecStart=/usr/bin/python /home/pi/Documents/igrill/monitor.py -c .config/
 
 [Install]
 WantedBy=multi-user.target
