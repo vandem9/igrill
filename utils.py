@@ -147,11 +147,20 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
         connect_future.result()
         logging.debug("connected")
 
-        mqtt_connection.publish(
-            topic="igrill/test",
-            payload=json.dumps("test123"),
-            qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
-        )
+        for i in range(1, 5):
+            if temperatures[i]:
+                mqtt_connection.publish(
+                    topic="{0}/probe{1}".format(base_topic, i),
+                    payload=json.dumps(temperatures[i]),
+                    qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
+                )
+
+        if battery:
+            mqtt_connection.publish(
+                topic="{0}/battery".format(base_topic),
+                payload=json.dumps(battery),
+                qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
+            )
 
         t.sleep(1)
 
