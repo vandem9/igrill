@@ -151,16 +151,16 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
         disconnect_future.result()
         logging.debug("disconnected")
 
-    else:
-        logging.debug("using legacy mqtt")
-        for i in range(1, 5):
-            if temperatures[i]:
-                client.publish("{0}/{1}/probe{2}".format(base_topic, device_name, i), temperatures[i])
+    #else:
+    logging.debug("using legacy mqtt")
+    for i in range(1, 5):
+        if temperatures[i]:
+            client.publish("{0}/{1}/probe{2}".format(base_topic, device_name, i), temperatures[i])
 
-        if battery:
-            client.publish("{0}/{1}/battery".format(base_topic, device_name), battery)
-        if heating_element:
-            client.publish("{0}/{1}/heating_element".format(base_topic, device_name), heating_element)
+    if battery:
+        client.publish("{0}/{1}/battery".format(base_topic, device_name), battery)
+    if heating_element:
+        client.publish("{0}/{1}/heating_element".format(base_topic, device_name), heating_element)
 
 
 def get_devices(device_config):
