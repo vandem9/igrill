@@ -126,15 +126,12 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
         logging.debug("using aws iot client")
 
         mqtt_tls_config = aws_mqtt_config['tls']
-        
-        logging.debug(aws_mqtt_config['host'])
 
         event_loop_group = io.EventLoopGroup(1)
         host_resolver = io.DefaultHostResolver(event_loop_group)
         client_bootstrap = io.ClientBootstrap(event_loop_group, host_resolver)
         mqtt_connection = mqtt_connection_builder.mtls_from_path(
             endpoint=aws_mqtt_config['host'],
-            port=aws_mqtt_config['port'],
             cert_filepath=mqtt_tls_config['certfile'],
             pri_key_filepath=mqtt_tls_config['keyfile'],
             client_bootstrap=client_bootstrap,
