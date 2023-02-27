@@ -126,6 +126,8 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
         logging.debug("using aws iot client")
 
         mqtt_tls_config = aws_mqtt_config['tls']
+        
+        logging.debug(aws_mqtt_config['host'])
 
         event_loop_group = io.EventLoopGroup(1)
         host_resolver = io.DefaultHostResolver(event_loop_group)
