@@ -6,7 +6,7 @@ from igrill import IGrillMiniPeripheral, IGrillV2Peripheral, IGrillV3Peripheral,
 import logging
 import paho.mqtt.client as mqtt
 from awsiot import mqtt_connection_builder
-from awscrt import mqtt
+from awscrt import mqtt as aws_iot_mqtt
 
 config_requirements = {
     'specs': {
