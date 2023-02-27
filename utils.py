@@ -9,6 +9,7 @@ from awsiot import mqtt_connection_builder
 from awscrt import mqtt as aws_iot_mqtt
 from awscrt import io
 import json
+import time as t
 
 config_requirements = {
     'specs': {
@@ -146,13 +147,13 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
         connect_future.result()
         logging.debug("connected")
 
-        publishResult = mqtt_connection.publish(
+        mqtt_connection.publish(
             topic="igrill/test",
             payload=json.dumps("test123"),
             qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
         )
 
-        publishResult.result()
+        t.sleep(1)
 
         logging.debug("disconnecting")
         disconnect_future = mqtt_connection.disconnect()
