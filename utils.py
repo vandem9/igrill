@@ -115,9 +115,10 @@ def mqtt_init(mqtt_config):
 def publish(temperatures, battery, heating_element, client, base_topic, device_name):
     options = parser.parse_args()
     config = Config(options.config_directory, config_requirements, config_defaults)
+    mqtt_config = config.get_config('mqtt')
 
-    #if 'aws_iot' in config['mqtt'] and config['mqtt']['aws_iot'] == True:
-    #    logging.debug("using aws iot client")
+    if 'aws_iot' in mqtt_config and mqtt_config['aws_iot'] == True:
+        logging.debug("using aws iot client")
 
     for i in range(1, 5):
         if temperatures[i]:
