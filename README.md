@@ -1,3 +1,6 @@
+# Fork
+This fork adds the ability to send the igrill data to AWS IOT core mqtt
+
 # iGrill
 Monitor your iGrill (mini, v2 or v3) or Pulse 2000 (with a Raspberry Pi 1/2/3) - and forward it to a mqtt-server
 

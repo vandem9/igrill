@@ -3,6 +3,7 @@
 #  host:       'mqtt.example.com'                   # Optional default 'localhost'
 #  port:       1883                                 # Optional default '1883'
 #  keepalive:  60                                   # Optional default '60'
+#  aws_iot: True                                    # Required, set tot True to use aws iot mqtt
 #  auth:                                            # Optional If included, username_pw_set() is called with user/password
 #    username: 'user'                               # Required (when auth is present)
 #    password: 'pass'                               # Optional
