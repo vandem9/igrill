@@ -136,7 +136,7 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
             pri_key_filepath=mqtt_tls_config['keyfile'],
             client_bootstrap=client_bootstrap,
             ca_filepath=mqtt_tls_config['ca_certs'],
-            client_id="pubClient",
+            client_id="iGrillClient",
             clean_session=False,
             keep_alive_secs=30
         )
@@ -147,7 +147,7 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
         logging.debug("connected")
 
         mqtt_connection.publish(
-            topic="test/topic",
+            topic="igrill/test",
             payload=json.dumps("test123"),
             qos=aws_iot_mqtt.QoS.AT_LEAST_ONCE
         )
