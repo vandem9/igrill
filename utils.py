@@ -133,7 +133,7 @@ def publish(temperatures, battery, heating_element, client, base_topic, device_n
             ca_filepath=mqtt_tls_config['ca_certs'],
             client_id="pubClient",
             clean_session=False,
-            keep_alive_secs=aws_mqtt_config['keepalive']
+            keep_alive_secs=30
         )
 
         logging.debug("connecting")
